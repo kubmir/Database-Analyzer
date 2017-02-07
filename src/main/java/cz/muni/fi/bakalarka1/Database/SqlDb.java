@@ -1,29 +1,32 @@
 package cz.muni.fi.bakalarka1.Database;
 
+import cz.muni.fi.bakalarka1.Utils.ServiceFailureException;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Class which provide access to database defined by absolute path.
+ * Class which provide access to database file defined by absolute path.
  * @author Miroslav Kubus
  */
 public class SqlDb {
         
     /**
-     * Method which load sqlite jdbc driver's class file into the memory.
+     * Method which load sqlite jdbc driver's class file into the memory,
+     * instantiate and register this driver.
+     * @throws ServiceFailureException in case of exception during loading driver
      */
-    public void registerJDBCDriver() {
+    public void registerJDBCDriver() throws ServiceFailureException {
         try {
-            Class.forName("org.sqlite.JDBC"); //Ak zmenim driver a budem mat problem tak nutne pridat dependencies do pom.xml
+            Class.forName("org.sqlite.JDBC");
         } 
         catch (ClassNotFoundException ex) {
-            System.err.println("Error: problem while loading driver class!");
-            System.err.println("Exception: " + ex.toString());
-            System.exit(1);
+            throw new ServiceFailureException("Internal error: problem while loading driver class!", ex);
         }
     } 
     
@@ -31,8 +34,9 @@ public class SqlDb {
      * Method which establish connection to database file
      * @param pathToDB path to chosen database file
      * @return connection to database file defined by pathToDB. Null in case of error
+     * @throws ServiceFailureException in case of error during getting connection
      */
-    public Connection establishDBConnection(String pathToDB) {
+    public Connection establishDBConnection(String pathToDB) throws ServiceFailureException {
         String urlPath = this.modifySlashes(pathToDB);
         
         if(urlPath != null) {
@@ -41,41 +45,65 @@ public class SqlDb {
                 return con;
             } 
             catch (SQLException ex) {
-                System.err.println("Error: unable to establish database connection!");
-                System.err.println(ex);
-                return null;
+                throw new ServiceFailureException("Internal error: unable to "
+                        + "establish database connection!", ex);
             }
         } else {
-            System.err.println("Error: Invalid file path. After modification url is NULL!");
-            return null;
+            throw new ServiceFailureException("Internal error: invalid file path! "
+                    + "File path for establishing database connection is NULL.");
         }
     }
     
     /**
-     * Method which access all cars in table car in database
+     * Method which access all logs in table debug_log in database
      * @param pathToDB represents absolute path to .db file
+     * @throws ServiceFailureException in case of error while working with database
      */
-    public void testAccessDB(String pathToDB) {
-    
-        try(Connection con = this.establishDBConnection(pathToDB);
-            PreparedStatement statement = con.prepareStatement("SELECT * FROM car")) {
+    public void testAccessDB(String pathToDB) throws ServiceFailureException, SQLException {
+        Connection con = null;
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        int offset = 0;
+        int size = 15000;
+        int i = 0;
+        List<Result> listOfElements = new ArrayList<>();
+
+        try {
+            con = this.establishDBConnection(pathToDB);
             
-            ResultSet rs = statement.executeQuery();
-            int i = 1;
-            while(rs.next()) {
-                System.out.println("Car number " + i);
-                System.out.println("Producer: " + rs.getString(rs.findColumn("producer")));
-                System.out.println("Model: " + rs.getString(rs.findColumn("model")));
-                System.out.println("Year: " + rs.getInt(rs.findColumn("year")));
-                System.out.println("SPZ: " + rs.getString(rs.findColumn("licencePlate")));
-                System.out.println();
+            while(size == 15000) {
+                statement = con.prepareStatement("SELECT * FROM debug_log LIMIT 15000 OFFSET ?");
+                statement.setInt(1, offset + (i * 15000));
+                rs = statement.executeQuery();
+                size = 0;
+                
+                while(rs.next()) {                   
+                    listOfElements.add(new Result(rs.getInt(1),rs.getString(2),rs.getString(3),
+                    rs.getInt(4), rs.getInt(5), rs.getString(6), rs.getInt(7), 
+                    rs.getInt(8), rs.getDate(9)));
+                    //System.out.println((i * 15000) + size);
+                    size++;
+                }
+                //ANALYZA
+                listOfElements.clear();
+                System.gc();
                 i++;
             }
+        } catch(SQLException ex) {
+            throw new ServiceFailureException("Internal error: problem while "
+                    + "executing SQL statement!", ex);
+        } finally {
+            if(rs != null) {
+                rs.close();
+            }
+            if(statement != null) {
+                statement.close();
+            }
+            
+            if(con != null) {
+                con.close();
+            }
         }
-        catch(SQLException ex) {
-            System.err.println("Error: SQL error while accessing database!");
-            System.err.println(ex);
-        } 
     }
 
     /**
@@ -85,5 +113,46 @@ public class SqlDb {
      */
     private String modifySlashes(String stringToModify) {
         return stringToModify.replace(File.separator, "/");
-    }    
+    }
+    
+     /**
+     * Method which access all logs in table debug_log in database
+     * @param pathToDB represents absolute path to .db file
+     * @throws ServiceFailureException in case of error while working with database
+     */
+    public void testAccessDBusingList(String pathToDB) throws ServiceFailureException, SQLException {
+        Connection con = null;
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        List<Result> listOfElements = new ArrayList<>();
+        
+        try {
+            con = this.establishDBConnection(pathToDB);
+            statement = con.prepareStatement("SELECT * FROM debug_log");
+            rs = statement.executeQuery();
+                           
+            while(rs.next()) {
+                //System.out.println(res);
+                listOfElements.add(new Result(rs.getInt(1),rs.getString(2),rs.getString(3),
+                rs.getInt(4), rs.getInt(5), rs.getString(6), rs.getInt(7), 
+                rs.getInt(8), rs.getDate(9)));
+            }
+            
+        } catch(SQLException ex) {
+            throw new ServiceFailureException("Internal error: problem while "
+                    + "executing SQL statement!", ex);
+        } finally {
+            if(rs != null) {
+                rs.close();
+            }
+            
+            if(statement != null) {
+                statement.close();
+            }
+            
+            if(con != null) {
+                con.close();
+            }
+        }
+    }
 }
