@@ -1,5 +1,6 @@
 package cz.muni.fi.bakalarka1.Database;
 
+import cz.muni.fi.bakalarka1.Utils.ColumnsNames;
 import cz.muni.fi.bakalarka1.Utils.ServiceFailureException;
 import java.io.File;
 import java.sql.Connection;
@@ -15,7 +16,16 @@ import java.util.List;
  * @author Miroslav Kubus
  */
 public class SqlDb {
-        
+    
+    private Analyzer analyzer;
+    
+    /**
+     * Constructor for constructing SqlDb class. It also creates instance of Analyzer.
+     */
+    public SqlDb() {
+        analyzer = new Analyzer();
+    }
+    
     /**
      * Method which load sqlite jdbc driver's class file into the memory,
      * instantiate and register this driver.
@@ -55,17 +65,32 @@ public class SqlDb {
     }
     
     /**
-     * Method which access all logs in table debug_log in database
+     * Method whiche access tables in database
      * @param pathToDB represents absolute path to .db file
      * @throws ServiceFailureException in case of error while working with database
      */
-    public void testAccessDB(String pathToDB) throws ServiceFailureException, SQLException {
+    public void testAccessDB(String pathToDB) throws ServiceFailureException {
+        try {
+            accessDebugLogTable(pathToDB);
+        } catch(SQLException ex) {
+            throw new ServiceFailureException("Internal error: error while closing "
+                    + "ResultSet, statement or connection after accessing the database", ex);
+        }
+    }
+    
+    /**
+     * Method which access all logs in table debug_log in database
+     * @param pathToDB represents absolute path to .db file
+     * @throws ServiceFailureException in case of error while working with database
+     * @throws java.sql.SQLException in case of error while closing connection/statement/resultSet
+     */
+    public void accessDebugLogTable(String pathToDB) throws ServiceFailureException, SQLException {
         Connection con = null;
         PreparedStatement statement = null;
         ResultSet rs = null;
         int offset = 0;
-        int size = 15000;
         int i = 0;
+        int size = 15000;
         List<Result> listOfElements = new ArrayList<>();
 
         try {
@@ -73,18 +98,21 @@ public class SqlDb {
             
             while(size == 15000) {
                 statement = con.prepareStatement("SELECT * FROM debug_log LIMIT 15000 OFFSET ?");
+                statement.setFetchSize(1000); //Zrychlenie o 1000ms cca
                 statement.setInt(1, offset + (i * 15000));
                 rs = statement.executeQuery();
                 size = 0;
                 
                 while(rs.next()) {                   
-                    listOfElements.add(new Result(rs.getInt(1),rs.getString(2),rs.getString(3),
-                    rs.getInt(4), rs.getInt(5), rs.getString(6), rs.getInt(7), 
-                    rs.getInt(8), rs.getDate(9)));
-                    //System.out.println((i * 15000) + size);
+                    listOfElements.add(new Result(rs.getInt(ColumnsNames.ID.getNumVal()),
+                        rs.getString(ColumnsNames.LOG.getNumVal()), rs.getString(ColumnsNames.INFO.getNumVal()),
+                        rs.getInt(ColumnsNames.LEVEL.getNumVal()), rs.getInt(ColumnsNames.MODULE.getNumVal()), 
+                        rs.getString(ColumnsNames.PROCESS_NAME.getNumVal()), rs.getInt(ColumnsNames.PROCESS_ID.getNumVal()), 
+                        rs.getInt(ColumnsNames.THREAD_ID.getNumVal()), rs.getDate(ColumnsNames.DATE_TIME.getNumVal())));
+                    System.out.println(rs.getInt(ColumnsNames.ID.getNumVal()));
                     size++;
                 }
-                //ANALYZA
+                analyzer.analyzeDebugLogTable(listOfElements);
                 listOfElements.clear();
                 System.gc();
                 i++;
@@ -116,7 +144,7 @@ public class SqlDb {
     }
     
      /**
-     * Method which access all logs in table debug_log in database
+     * Method which access all logs in table debug_log in database - LEN POKUS
      * @param pathToDB represents absolute path to .db file
      * @throws ServiceFailureException in case of error while working with database
      */

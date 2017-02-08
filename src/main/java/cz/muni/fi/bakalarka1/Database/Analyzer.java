@@ -1,6 +1,7 @@
 package cz.muni.fi.bakalarka1.Database;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -9,7 +10,7 @@ import java.util.List;
  * @author Miroslav Kubus
  */
 public class Analyzer {
-    private List<ArrayList> errors;
+    private List<Result> errors;
     
     /**
      * Constructor for class analyzer. It creates new list of errors.
@@ -18,4 +19,20 @@ public class Analyzer {
         this.errors = new ArrayList<>();
     }
     
+    /**
+     * Method which analyzes list elements. In case of error in list elements it 
+     * adds this error into errors list
+     * @param elements represents logs from database to be analyzed
+     */
+    public void analyzeDebugLogTable(List<Result> elements) {
+        
+    }
+    
+    /**
+     * Method which returns all errors which were detected while analyzes
+     * @return list of all errors in database detected while analyzes
+     */
+    public List<Result> getErrors() {
+        return Collections.unmodifiableList(errors);
+    }
 }
