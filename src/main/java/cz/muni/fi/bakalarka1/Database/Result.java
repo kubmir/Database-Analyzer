@@ -18,6 +18,7 @@ public class Result {
     private int process_id;
     private int thread_id;
     private Date date_time;
+    private String identity;
     
     public Result(int id, String log, String info, int level, int module,
             String processName, int processId, int threadId, Date dateTime) {
@@ -30,6 +31,7 @@ public class Result {
         this.process_id = processId;
         this.thread_id = threadId;
         this.date_time = dateTime;
+        this.identity = info.substring(0, 10);
     }
     
     public void setID(int id) {
@@ -104,8 +106,12 @@ public class Result {
         return this.date_time;
     }  
     
+    public String getIdentity() {
+        return this.identity;
+    }
+    
     @Override
     public String toString() {
-        return "Element with id " + this.id + " level " + this.level;
+        return "Element with id " + this.id + " identity " + this.identity;
     }
 }

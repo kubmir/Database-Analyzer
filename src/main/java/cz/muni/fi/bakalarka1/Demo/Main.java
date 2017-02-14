@@ -3,7 +3,6 @@ package cz.muni.fi.bakalarka1.Demo;
 import cz.muni.fi.bakalarka1.Database.SqlDb;
 import cz.muni.fi.bakalarka1.Utils.ServiceFailureException;
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  * Class which serve for demonstration of functions.
@@ -15,9 +14,7 @@ public class Main {
         String pathToDB = "C:\\Users\\Miroslav Kubus\\Desktop\\Nepodporovany port v emailovem klientu\\Debug.db";
         //String pathToDrbo = "C:\\Users\\Miroslav Kubus\\Desktop\\Nepodporovany port v emailovem klientu\\port_587.drbo";
         SqlDb test = new SqlDb(pathToDB);
-        test.registerJDBCDriver();
         test.testAccessDB();
-        //test.testAccessDBusingList(pathToDB);
         System.out.println("Done!");
     }
 }
