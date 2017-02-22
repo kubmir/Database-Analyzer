@@ -1,117 +1,91 @@
 package cz.muni.fi.bakalarka1.Database;
 
-import java.sql.Date;
-
 /**
- * Class which represents one specific error which was found in debug_log 
- * table in database with all attributes of error.
+ * Class which represents rows in database grouped by function in info
  * @author Miroslav Kubus
  */
 public class Result {
-    
-    private int id;
-    private String log;
-    private String info;
+    private int count;
+    private int startID;
+    private int endID;
     private int level;
     private int module;
-    private String process_name;
-    private int process_id;
-    private int thread_id;
-    private Date date_time;
-    private String identity;
+    private int processID;
+    private int threadID;
+    private String info;
     
-    public Result(int id, String log, String info, int level, int module,
-            String processName, int processId, int threadId, Date dateTime) {
-        this.id = id;
-        this.log = log;
-        this.info = info;
+    public Result(int count, int startID, int endID, int level, int module, int processID, int threadID, String info) {
+        this.count = count;
+        this.startID = startID;
+        this.endID = endID;
         this.level = level;
         this.module = module;
-        this.process_name = processName;
-        this.process_id = processId;
-        this.thread_id = threadId;
-        this.date_time = dateTime;
-        this.identity = info.substring(0, 10);
+        this.processID = processID;
+        this.threadID = threadID;
+        this.info = info;
     }
-    
-    public void setID(int id) {
-        this.id = id;
-    }
-    
-    public void setLog(String log) {
-        this.log = log;
-    }
-    
+
     public void setInfo(String info) {
         this.info = info;
     }
+
+    public String getInfo() {
+        return info;
+    }
     
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
+
+    public int getStartID() {
+        return startID;
+    }
+
+    public void setStartID(int startID) {
+        this.startID = startID;
+    }
+
+    public int getEndID() {
+        return endID;
+    }
+
+    public void setEndID(int endID) {
+        this.endID = endID;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
     public void setLevel(int level) {
         this.level = level;
     }
-    
+
+    public int getModule() {
+        return module;
+    }
+
     public void setModule(int module) {
         this.module = module;
     }
-    
-    public void setProcessName(String processName) {
-        this.process_name = processName;
+
+    public int getProcessID() {
+        return processID;
     }
-    
-    public void setProcessId(int processId) {
-        this.process_id = processId;
-    } 
-    
-    public void setThreadId(int threadId) {
-        this.thread_id = threadId;
+
+    public void setProcessID(int processID) {
+        this.processID = processID;
     }
-    
-    public void setDateTime(Date date) {
-        this.date_time = date;
+
+    public int getThreadID() {
+        return threadID;
     }
-    
-    public int getID() {
-        return this.id;
-    }
-    
-    public String getLog() {
-        return this.log;
-    }
-    
-    public String getInfo() {
-        return this.info;
-    }
-    
-    public int getLevel() {
-        return this.level;
-    }
-    
-    public int getModule() {
-        return this.module;
-    }
-    
-    public String getProcessName() {
-        return this.process_name;
-    }
-    
-    public int getProcessId() {
-        return this.process_id;
-    } 
-    
-    public int getThreadId() {
-        return this.thread_id;
-    }
-    
-    public Date getDateTime() {
-        return this.date_time;
-    }  
-    
-    public String getIdentity() {
-        return this.identity;
-    }
-    
-    @Override
-    public String toString() {
-        return "Element with id " + this.id + " identity " + this.identity;
+
+    public void setThreadID(int threadID) {
+        this.threadID = threadID;
     }
 }

@@ -1,8 +1,7 @@
 package cz.muni.fi.bakalarka1.Utils;
 
+import cz.muni.fi.bakalarka1.Database.DatabaseRow;
 import cz.muni.fi.bakalarka1.Database.Result;
-import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -45,8 +44,12 @@ public class XMLWriter {
             if(processRoot != null) {
                 for(Result res : listOfResults) {
                     Element resultElement = dataDoc.createElement("LOG");
+                    resultElement.setAttribute("count",String.valueOf(res.getCount()));
+                    resultElement.setAttribute("startid", String.valueOf(res.getStartID()));
+                    resultElement.setAttribute("endid", String.valueOf(res.getEndID()));
+                    resultElement.setAttribute("level", String.valueOf(res.getLevel()));
+                    //resultElement.setAttribute("info", res.getInfo());
                     resultElement.appendChild(dataDoc.createTextNode(res.getInfo()));
-                    //resultElement.appendChild(dataDoc.createTextNode(res.getLog()));
                     processRoot.appendChild(resultElement);
                 }
                 dataRoot.appendChild(processRoot);

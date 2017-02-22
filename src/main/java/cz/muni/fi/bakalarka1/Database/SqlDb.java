@@ -105,15 +105,24 @@ public class SqlDb {
             this.createDataSource();
             this.createIndex();
             List<String> names = this.getAllProcessNamesFromDatabase();
-            List<Result> results;
             writer.createDataDoc();
             for(String name : names) {
-                results = accessDebugLogTableByName(name);
-                //writer.writeDataToDoc(results, name);
-                results.clear();
-                System.gc();
+               accessDebugLogTableByName(name);
             }
             this.dropIndex();
+        } catch(SQLException ex) {
+            throw new ServiceFailureException("Internal error: error while closing "
+                    + "ResultSet, statement or connection after accessing the database", ex);
+        }
+    }
+    
+    public void testAccessDB1() throws ServiceFailureException {
+        try {
+            this.createDataSource();
+            this.createIndex();
+            writer.createDataDoc();
+            this.accessDebugLogTableByName("launcher.exe");
+            
         } catch(SQLException ex) {
             throw new ServiceFailureException("Internal error: error while closing "
                     + "ResultSet, statement or connection after accessing the database", ex);
@@ -127,29 +136,28 @@ public class SqlDb {
      * @throws ServiceFailureException in case of error while working with database
      * @throws java.sql.SQLException in case of error while closing connection/statement/resultSet
      */
-    public List<Result> accessDebugLogTableByName(String name) throws ServiceFailureException, SQLException {
+    public List<DatabaseRow> accessDebugLogTableByName(String name) throws ServiceFailureException, SQLException {
         Connection con = null;
         PreparedStatement statement = null;
         ResultSet rs = null;
         int offset = 0;
         int i = 0;
         int size = 15000;
-        List<Result> listOfElements = new ArrayList<>();
+        List<DatabaseRow> listOfElements = new ArrayList<>();
         
         try {
             con = ds.getConnection();
            
             while(size == 15000) {
                 statement = con.prepareStatement("SELECT * FROM debug_log WHERE process_name = ? LIMIT 15000 OFFSET ?");
-                statement.setFetchSize(100); //Zrychlenie o 1000ms cca
+                statement.setFetchSize(100); //Zrychlenie o 1000ms cca + pripadne 0 a je to rychlejsie
                 statement.setString(1, name);
                 statement.setInt(2, offset + (i * 15000));
                 rs = statement.executeQuery();
-                rs.setFetchSize(100);
                 size = 0;
 
                 while(rs.next()) {                   
-                    listOfElements.add(new Result(rs.getInt(ColumnsNames.ID.getNumVal()),
+                    listOfElements.add(new DatabaseRow(rs.getInt(ColumnsNames.ID.getNumVal()),
                         rs.getString(ColumnsNames.LOG.getNumVal()), rs.getString(ColumnsNames.INFO.getNumVal()),
                         rs.getInt(ColumnsNames.LEVEL.getNumVal()), rs.getInt(ColumnsNames.MODULE.getNumVal()), 
                         rs.getString(ColumnsNames.PROCESS_NAME.getNumVal()), rs.getInt(ColumnsNames.PROCESS_ID.getNumVal()), 
@@ -157,6 +165,9 @@ public class SqlDb {
                     //System.out.println(rs.getString(ColumnsNames.PROCESS_NAME.getNumVal()) + "->" + rs.getRow());
                     size++;
                 }
+                writer.writeDataToDoc(analyzer.analyzeDebugLogTable(listOfElements), name);
+                listOfElements.clear();
+                System.gc();
                 i++;
             }
         } catch(SQLException ex) {
