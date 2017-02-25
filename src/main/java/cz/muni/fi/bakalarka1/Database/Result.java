@@ -12,9 +12,9 @@ public class Result {
     private int module;
     private int processID;
     private int threadID;
-    private String info;
+    private String identity;
     
-    public Result(int count, int startID, int endID, int level, int module, int processID, int threadID, String info) {
+    public Result(int count, int startID, int endID, int level, int module, int processID, int threadID, String identity) {
         this.count = count;
         this.startID = startID;
         this.endID = endID;
@@ -22,15 +22,15 @@ public class Result {
         this.module = module;
         this.processID = processID;
         this.threadID = threadID;
-        this.info = info;
+        this.identity = identity;
     }
 
-    public void setInfo(String info) {
-        this.info = info;
+    public void setIdentity(String identity) {
+        this.identity = identity;
     }
 
-    public String getInfo() {
-        return info;
+    public String getIdentity() {
+        return identity;
     }
     
     public int getCount() {

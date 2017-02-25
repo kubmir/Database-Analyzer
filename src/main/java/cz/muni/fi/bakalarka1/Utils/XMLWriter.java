@@ -1,6 +1,5 @@
 package cz.muni.fi.bakalarka1.Utils;
 
-import cz.muni.fi.bakalarka1.Database.DatabaseRow;
 import cz.muni.fi.bakalarka1.Database.Result;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
@@ -48,8 +47,7 @@ public class XMLWriter {
                     resultElement.setAttribute("startid", String.valueOf(res.getStartID()));
                     resultElement.setAttribute("endid", String.valueOf(res.getEndID()));
                     resultElement.setAttribute("level", String.valueOf(res.getLevel()));
-                    //resultElement.setAttribute("info", res.getInfo());
-                    resultElement.appendChild(dataDoc.createTextNode(res.getInfo()));
+                    resultElement.appendChild(dataDoc.createTextNode(res.getIdentity()));
                     processRoot.appendChild(resultElement);
                 }
                 dataRoot.appendChild(processRoot);

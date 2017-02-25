@@ -150,7 +150,7 @@ public class SqlDb {
            
             while(size == 15000) {
                 statement = con.prepareStatement("SELECT * FROM debug_log WHERE process_name = ? LIMIT 15000 OFFSET ?");
-                statement.setFetchSize(100); //Zrychlenie o 1000ms cca + pripadne 0 a je to rychlejsie
+                statement.setFetchSize(100);
                 statement.setString(1, name);
                 statement.setInt(2, offset + (i * 15000));
                 rs = statement.executeQuery();
@@ -162,7 +162,6 @@ public class SqlDb {
                         rs.getInt(ColumnsNames.LEVEL.getNumVal()), rs.getInt(ColumnsNames.MODULE.getNumVal()), 
                         rs.getString(ColumnsNames.PROCESS_NAME.getNumVal()), rs.getInt(ColumnsNames.PROCESS_ID.getNumVal()), 
                         rs.getInt(ColumnsNames.THREAD_ID.getNumVal()), rs.getDate(ColumnsNames.DATE_TIME.getNumVal())));
-                    //System.out.println(rs.getString(ColumnsNames.PROCESS_NAME.getNumVal()) + "->" + rs.getRow());
                     size++;
                 }
                 writer.writeDataToDoc(analyzer.analyzeDebugLogTable(listOfElements), name);

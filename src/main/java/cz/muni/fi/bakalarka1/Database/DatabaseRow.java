@@ -31,7 +31,39 @@ public class DatabaseRow {
         this.process_id = processId;
         this.thread_id = threadId;
         this.date_time = dateTime;
-        this.identity = info.substring(0, 10);
+    }
+    
+      /**
+     * Method which transform numeric representation of level
+     * to string representation
+     * @return string which represents level number 
+     */
+    public String getLevelAsString() {
+        if(this.level == 100) {
+            return "Verbose";
+        }
+        
+        if(this.level == 200) {
+            return "Debug";
+        }
+        
+        if(this.level == 400) {
+            return "Info";
+        }
+        
+        if(this.level == 600) {
+            return "Warning";
+        }
+        
+        if(this.level == 800) {
+            return "Error";
+        }
+        
+        if(this.level == 1000) {
+            return "Critical";
+        }
+        
+        return "UNKOWN LEVEL";
     }
     
     public void setID(int id) {
@@ -106,8 +138,8 @@ public class DatabaseRow {
         return this.date_time;
     }  
     
-    public String getIdentity() {
-        return this.identity;
+    public String getIdentity() {        
+        return info.replaceAll("\\[.*?\\]", "");
     }
     
     @Override
