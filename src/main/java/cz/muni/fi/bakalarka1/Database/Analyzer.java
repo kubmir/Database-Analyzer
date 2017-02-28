@@ -3,8 +3,6 @@ package cz.muni.fi.bakalarka1.Database;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-
 
 /**
  * Class which execute several different analyzes on data
@@ -13,51 +11,51 @@ import java.util.Map;
  */
 public class Analyzer {
     
-    public Map<String, Integer> calculateStatisticsForSpecificProcess(List<DatabaseRow> elements, Map<String, Integer> results) {
-        int level;
-        int verbose = results.get("Verbose");
-        int debug = 0;
-        int info = 0;
-        int warning = 0;
-        int error = 0;
-        int critical = 0;
-        
-        for(DatabaseRow row : elements) {
-            level = row.getLevel();
-            
-            if(level == 100) { 
-                verbose++;
-            }
-        
-            if(level == 200) {
-                debug++;
+    public void calculateStatisticsForSpecificProcess(List<DatabaseRow> elements, ProcessStats statistics) {
+        if(statistics.getProcessName().compareTo(elements.get(0).getProcessName()) == 0) {
+            int level;
+            int verbose = 0;
+            int debug = 0;
+            int info = 0;
+            int warning = 0;
+            int error = 0;
+            int critical = 0;
+
+            for(DatabaseRow row : elements) {
+                level = row.getLevel();
+
+                if(level == 100) { 
+                    verbose++;
+                }
+
+                if(level == 200) {
+                    debug++;
+                }
+
+                if(level == 400) {
+                    info++;
+                }
+
+                if(level == 600) {
+                    warning++;
+                }
+
+                if(level == 800) {
+                    error++;
+                }
+
+                if(level == 1000) {
+                    critical++;
+                }
             }
 
-            if(level == 400) {
-                info++;
-            }
-
-            if(level == 600) {
-                warning++;
-            }
-
-            if(level == 800) {
-                error++;
-            }
-
-            if(level == 1000) {
-                critical++;
-            }
+            statistics.setCritical(critical);
+            statistics.setDebug(debug);
+            statistics.setError(error);
+            statistics.setInfo(info);
+            statistics.setVerbose(verbose);
+            statistics.setWarning(warning);
         }
-        
-        results.put("Verbose", verbose);
-        results.put("Debug", debug);
-        results.put("Info", info);
-        results.put("Warning", warning);
-        results.put("Error", error);
-        results.put("Critical", critical);
-        
-        return results;
     }
     
     /**

@@ -121,7 +121,7 @@ public class SqlDb {
             this.createDataSource();
             this.createIndex();
             writer.createDataDoc();
-            this.accessDebugLogTableByName("launcher.exe");
+            this.accessDebugLogTableByName("NetMonitorServer.dll");
             
         } catch(SQLException ex) {
             throw new ServiceFailureException("Internal error: error while closing "
@@ -144,6 +144,7 @@ public class SqlDb {
         int i = 0;
         int size = 15000;
         List<DatabaseRow> listOfElements = new ArrayList<>();
+        ProcessStats statistics = new ProcessStats(name);
         
         try {
             con = ds.getConnection();
@@ -164,7 +165,9 @@ public class SqlDb {
                         rs.getInt(ColumnsNames.THREAD_ID.getNumVal()), rs.getDate(ColumnsNames.DATE_TIME.getNumVal())));
                     size++;
                 }
-                writer.writeDataToDoc(analyzer.analyzeDebugLogTable(listOfElements), name);
+                analyzer.calculateStatisticsForSpecificProcess(listOfElements, statistics);
+                System.out.println(statistics);
+                writer.writeDataToDoc(analyzer.analyzeDebugLogTable(listOfElements), statistics);
                 listOfElements.clear();
                 System.gc();
                 i++;

@@ -1,5 +1,6 @@
 package cz.muni.fi.bakalarka1.Utils;
 
+import cz.muni.fi.bakalarka1.Database.ProcessStats;
 import cz.muni.fi.bakalarka1.Database.Result;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
@@ -13,6 +14,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  *
@@ -35,23 +38,34 @@ public class XMLWriter {
         }
     }
     
-    public void writeDataToDoc(List<Result> listOfResults, String process) throws ServiceFailureException {
+    public void writeDataToDoc(List<Result> listOfResults, ProcessStats stats) throws ServiceFailureException {
         Element dataRoot = dataDoc.getDocumentElement();
         if(dataRoot != null) {
-            Element processRoot = dataDoc.createElement(process);
+            NodeList test = dataDoc.getElementsByTagName(stats.getProcessName());
+            Element processRoot = (Element) test.item(0);
             
-            if(processRoot != null) {
-                for(Result res : listOfResults) {
-                    Element resultElement = dataDoc.createElement("LOG");
-                    resultElement.setAttribute("count",String.valueOf(res.getCount()));
-                    resultElement.setAttribute("startid", String.valueOf(res.getStartID()));
-                    resultElement.setAttribute("endid", String.valueOf(res.getEndID()));
-                    resultElement.setAttribute("level", String.valueOf(res.getLevel()));
-                    resultElement.appendChild(dataDoc.createTextNode(res.getIdentity()));
-                    processRoot.appendChild(resultElement);
-                }
-                dataRoot.appendChild(processRoot);
+            if(processRoot == null) {
+                processRoot = dataDoc.createElement(stats.getProcessName());
             }
+                    
+            processRoot.setAttribute("error", String.valueOf(stats.getError()));
+            processRoot.setAttribute("verbose", String.valueOf(stats.getVerbose()));
+            processRoot.setAttribute("info", String.valueOf(stats.getInfo()));
+            processRoot.setAttribute("critical", String.valueOf(stats.getCritical()));
+            processRoot.setAttribute("debug", String.valueOf(stats.getDebug()));
+            processRoot.setAttribute("warning", String.valueOf(stats.getWarning()));
+              
+            for(Result res : listOfResults) {
+                Element resultElement = dataDoc.createElement("LOG");
+                resultElement.setAttribute("count",String.valueOf(res.getCount()));
+                resultElement.setAttribute("startid", String.valueOf(res.getStartID()));
+                resultElement.setAttribute("endid", String.valueOf(res.getEndID()));
+                resultElement.setAttribute("level", String.valueOf(res.getLevel()));
+                resultElement.appendChild(dataDoc.createTextNode(res.getIdentity()));
+                processRoot.appendChild(resultElement);
+            }
+            
+            dataRoot.appendChild(processRoot);
         }
         this.serializetoXML();
     }
