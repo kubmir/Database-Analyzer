@@ -11,6 +11,12 @@ import java.util.List;
  */
 public class Analyzer {
     
+    /**
+     * Method which calculates counts of rows from database with specific
+     * level value and same process name. 
+     * @param elements represents list of rows from database with same process name
+     * @param statistics stores all statistics for specific process name
+     */
     public void calculateStatisticsForSpecificProcess(List<DatabaseRow> elements, ProcessStats statistics) {
         if(statistics.getProcessName().compareTo(elements.get(0).getProcessName()) == 0) {
             int level;
@@ -61,8 +67,8 @@ public class Analyzer {
     /**
      * Method which analyzes list elements. In case of sequence of DatabaseRows
      * with same identity (info without line number between[]) and level it 
-     * groups these DatabaseRows to one and calculate count of them.
-     * @param elements represents logs from database to be analyzed
+     * groups these DatabaseRows to one and calculate counts of them.
+     * @param elements represents rows from database to be analyzed
      * @return list of Result to be written to XML
      */
     public List<Result> analyzeDebugLogTable(List<DatabaseRow> elements) {

@@ -48,7 +48,7 @@ public class SqlDb {
      * Method which create index on column process_name in table debug_log 
      * @throws ServiceFailureException in case of error while creating index in database
      */
-    private void createIndex() throws ServiceFailureException {
+    public void createIndex() throws ServiceFailureException {
         try(Connection con = ds.getConnection();
             Statement statement = con.createStatement()) {
             statement.executeUpdate("CREATE INDEX if not exists IX_debug_log_processName ON debug_log (process_name)");
@@ -103,8 +103,11 @@ public class SqlDb {
     public void testAccessDB() throws ServiceFailureException {
         try {
             this.createDataSource();
-            this.createIndex();
+            System.out.println("Data source created!");
+            //this.createIndex();
+            //System.out.println("Index created!");
             List<String> names = this.getAllProcessNamesFromDatabase();
+            System.out.println("All names retrieved!");
             writer.createDataDoc();
             for(String name : names) {
                accessDebugLogTableByName(name);
@@ -166,8 +169,9 @@ public class SqlDb {
                     size++;
                 }
                 analyzer.calculateStatisticsForSpecificProcess(listOfElements, statistics);
+                analyzer.analyzeDebugLogTable(listOfElements);
                 System.out.println(statistics);
-                writer.writeDataToDoc(analyzer.analyzeDebugLogTable(listOfElements), statistics);
+                //writer.writeDataToDoc(analyzer.analyzeDebugLogTable(listOfElements), statistics);
                 listOfElements.clear();
                 System.gc();
                 i++;

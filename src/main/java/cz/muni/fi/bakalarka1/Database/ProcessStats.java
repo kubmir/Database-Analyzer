@@ -1,7 +1,9 @@
 package cz.muni.fi.bakalarka1.Database;
 
 /**
- *
+ * This class stores all statistics about one specific
+ * process. It stores counts of verbose, debug, info, warning,
+ * error and critical rows in database file.
  * @author Miroslav Kubus
  */
 public class ProcessStats {

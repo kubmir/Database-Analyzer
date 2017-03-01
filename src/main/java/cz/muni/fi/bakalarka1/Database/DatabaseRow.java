@@ -3,8 +3,8 @@ package cz.muni.fi.bakalarka1.Database;
 import java.sql.Date;
 
 /**
- * Class which represents one specific error which was found in debug_log 
- * table in database with all attributes of error.
+ * Class which represents one specific row from debug_log 
+ * table in database with all attributes of row.
  * @author Miroslav Kubus
  */
 public class DatabaseRow {
@@ -18,7 +18,7 @@ public class DatabaseRow {
     private int process_id;
     private int thread_id;
     private Date date_time;
-    private String identity; //mozno vyuzit pri parsovani pre porovnavanie??
+    private String identity;
     
     public DatabaseRow(int id, String log, String info, int level, int module,
             String processName, int processId, int threadId, Date dateTime) {
@@ -33,7 +33,7 @@ public class DatabaseRow {
         this.date_time = dateTime;
     }
     
-      /**
+    /**
      * Method which transform numeric representation of level
      * to string representation
      * @return string which represents level number 
@@ -138,12 +138,22 @@ public class DatabaseRow {
         return this.date_time;
     }  
     
+    /**
+     * Method which parse name of function which caused 
+     * insertion of row into database table debug_log - it parses attribute info 
+     * and delete number of line of code from info.
+     * @return string representation of function without line number
+     */
     public String getIdentity() {        
         return info.replaceAll("\\[.*?\\]", "");
     }
-    
+
     @Override
     public String toString() {
-        return "Element with id " + this.id + " identity " + this.identity;
+        return "DatabaseRow{" + "id=" + id + ", log=" + log + ", info=" + info 
+                + ", level=" + level + ", module=" + module + ", process_name="
+                + process_name + ", process_id=" + process_id + ", thread_id=" 
+                + thread_id + ", date_time=" + date_time + ", identity=" 
+                + identity + '}';
     }
 }

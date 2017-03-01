@@ -12,10 +12,12 @@ import java.sql.SQLException;
 public class Main {
 
     public static void main(String[] args) throws ServiceFailureException, SQLException {
-        String pathToDB = "C:\\Users\\Miroslav Kubus\\Desktop\\Nepodporovany port v emailovem klientu\\Debug.db";
+        //String pathToDB = "C:\\Users\\Miroslav Kubus\\Desktop\\Nepodporovany port v emailovem klientu\\Debug.db";
+        String pathToDB = "C:\\Users\\Miroslav Kubus\\Desktop\\Debug_velka.db";
         //String pathToDrbo = "C:\\Users\\Miroslav Kubus\\Desktop\\Nepodporovany port v emailovem klientu\\port_587.drbo";
         SqlDb test = new SqlDb(pathToDB);
-        test.testAccessDB();
+        test.createIndex();
+        //test.testAccessDB();
         System.out.println("Done!");
     }
     

@@ -88,4 +88,12 @@ public class Result {
     public void setThreadID(int threadID) {
         this.threadID = threadID;
     }
+
+    @Override
+    public String toString() {
+        return "Result{" + "count=" + count + ", startID=" + startID 
+                + ", endID=" + endID + ", level=" + level + ", module=" 
+                + module + ", processID=" + processID + ", threadID=" 
+                + threadID + ", identity=" + identity + '}';
+    }
 }
