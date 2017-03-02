@@ -54,51 +54,27 @@ public class ProcessStats {
     }
 
     public void setVerbose(int verbose) {
-        if(this.verbose == 0) {
-            this.verbose = verbose;
-        } else {
-            this.verbose += verbose;
-        }
+        this.verbose = verbose;
     }
 
     public void setDebug(int debug) {
-        if(this.debug == 0) {
-            this.debug = debug;
-        } else {
-            this.debug += debug;
-        }
+        this.debug = debug;
     }
 
     public void setInfo(int info) {
-        if(this.info == 0) {
-            this.info = info;
-        } else {
-            this.info += info;
-        }
+        this.info = info;
     }
 
     public void setWarning(int warning) {
-        if(this.warning == 0) {
-            this.warning = warning;
-        } else {
-            this.warning += warning;
-        }
+        this.warning = warning;
     }
 
     public void setError(int error) {
-        if(this.error == 0) {
-            this.error = error;
-        } else {
-            this.error += error;
-        }
+        this.error = error;
     }
 
     public void setCritical(int critical) {
-        if(this.critical == 0) {
-            this.critical = critical;
-        } else {
-            this.critical += critical;
-        }
+        this.critical = critical;
     }
 
     public void setProcessName(String processName) {

@@ -1,6 +1,7 @@
 package cz.muni.fi.bakalarka1.Database;
 
 import cz.muni.fi.bakalarka1.Utils.ColumnsNames;
+import cz.muni.fi.bakalarka1.Utils.FasterXmlWriter;
 import cz.muni.fi.bakalarka1.Utils.ServiceFailureException;
 import cz.muni.fi.bakalarka1.Utils.XMLWriter;
 import java.io.File;
@@ -11,6 +12,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 /**
@@ -19,18 +22,22 @@ import org.apache.commons.dbcp2.BasicDataSource;
  */
 public class SqlDb {
     
+    private static final Logger LOGGER = Logger.getLogger(SqlDb.class.getName());
     private final Analyzer analyzer;
-    private final XMLWriter writer;
+    //private final XMLWriter writer;
+    private final FasterXmlWriter myWriter;
     private final String databaseURL;
     private BasicDataSource ds;
     
     /**
      * Constructor for constructing SqlDb class. It also creates instance of Analyzer.
      * @param pathToDB represents path to chosen database file
+     * @throws ServiceFailureException in case of error during initialization of XmlWriter
      */
-    public SqlDb(String pathToDB) {
+    public SqlDb(String pathToDB) throws ServiceFailureException {
         analyzer = new Analyzer();
-        writer = new XMLWriter();
+        //writer = new XMLWriter(); //len pre text praxe
+        myWriter = new FasterXmlWriter();
         databaseURL = this.modifySlashes(pathToDB);
         this.createDataSource();
     }
@@ -53,6 +60,8 @@ public class SqlDb {
             Statement statement = con.createStatement()) {
             statement.executeUpdate("CREATE INDEX if not exists IX_debug_log_processName ON debug_log (process_name)");
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error while creating index on process_name "
+                    + "column in table debug_log in database!", ex);
             throw new ServiceFailureException("Internal error: error while creating "
                     + "index on process_name in database!", ex);
         }
@@ -67,6 +76,8 @@ public class SqlDb {
             Statement statement = con.createStatement()) {
             statement.executeUpdate("DROP INDEX if exists IX_debug_log_processName");
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error while dropping index on process_name "
+                    + "column in table debug_log in database!", ex);
             throw new ServiceFailureException("Internal error: error while deleting "
                     + "index on process_name in database!", ex);
         }
@@ -89,6 +100,7 @@ public class SqlDb {
             }
             
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error while getting all process names from database!", ex);
             throw new ServiceFailureException("Internal error: error while "
                     + "retrieving all process names from database!", ex);
         }
@@ -100,7 +112,7 @@ public class SqlDb {
      * Method whiche access tables in database
      * @throws ServiceFailureException in case of error while working with database
      */
-    public void testAccessDB() throws ServiceFailureException {
+    public void testAccessDB1() throws ServiceFailureException {
         try {
             this.createDataSource();
             System.out.println("Data source created!");
@@ -108,7 +120,7 @@ public class SqlDb {
             //System.out.println("Index created!");
             List<String> names = this.getAllProcessNamesFromDatabase();
             System.out.println("All names retrieved!");
-            writer.createDataDoc();
+            //writer.createDataDoc();
             for(String name : names) {
                accessDebugLogTableByName(name);
             }
@@ -119,13 +131,16 @@ public class SqlDb {
         }
     }
     
-    public void testAccessDB1() throws ServiceFailureException {
+    public void testAccessDB() throws ServiceFailureException {
         try {
             this.createDataSource();
             this.createIndex();
-            writer.createDataDoc();
-            this.accessDebugLogTableByName("NetMonitorServer.dll");
-            
+            myWriter.writeStartOfDocument();
+            //this.accessDebugLogTableByName("NetMonitorServer.dll");
+            for(String name : this.getAllProcessNamesFromDatabase()) {
+               accessDebugLogTableByName(name);
+            }
+            myWriter.writeEndOfDocument();
         } catch(SQLException ex) {
             throw new ServiceFailureException("Internal error: error while closing "
                     + "ResultSet, statement or connection after accessing the database", ex);
@@ -169,14 +184,16 @@ public class SqlDb {
                     size++;
                 }
                 analyzer.calculateStatisticsForSpecificProcess(listOfElements, statistics);
-                analyzer.analyzeDebugLogTable(listOfElements);
                 System.out.println(statistics);
-                //writer.writeDataToDoc(analyzer.analyzeDebugLogTable(listOfElements), statistics);
+                myWriter.writeDataToDoc(analyzer.analyzeDebugLogTable(listOfElements), statistics);
+                //writer.writeDataToDoc(analyzer.analyzeDebugLogTable(listOfElements), statistics); //Iba pre porovnanie do prace
                 listOfElements.clear();
                 System.gc();
                 i++;
             }
         } catch(SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error while getting rows from database"
+                    + " with process name " + name + "!", ex);
             throw new ServiceFailureException("Internal error: problem while "
                     + "executing SQL statement!", ex);
         } finally {
