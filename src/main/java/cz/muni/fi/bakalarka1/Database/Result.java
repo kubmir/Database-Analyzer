@@ -9,12 +9,13 @@ public class Result {
     private int startID;
     private int endID;
     private int level;
+    private String type;
     private int module;
     private int processID;
     private int threadID;
     private String identity;
     
-    public Result(int count, int startID, int endID, int level, int module, int processID, int threadID, String identity) {
+    public Result(int count, int startID, int endID, int level, int module, int processID, int threadID, String identity, String type) {
         this.count = count;
         this.startID = startID;
         this.endID = endID;
@@ -23,6 +24,15 @@ public class Result {
         this.processID = processID;
         this.threadID = threadID;
         this.identity = identity;
+        this.type = type;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public void setIdentity(String identity) {

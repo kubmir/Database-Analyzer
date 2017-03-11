@@ -104,6 +104,7 @@ public class FasterXmlWriter {
             writer.writeAttribute("level", String.valueOf(res.getLevel()));
             writer.writeAttribute("pid", String.valueOf(res.getProcessID()));
             writer.writeAttribute("tid", String.valueOf(res.getThreadID()));
+            writer.writeAttribute("type", res.getType());
             writer.writeCharacters(res.getIdentity());
             writer.writeEndElement();
         } catch (XMLStreamException ex) {

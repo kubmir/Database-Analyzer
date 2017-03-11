@@ -10,7 +10,7 @@ import java.util.List;
  * @author Miroslav Kubus
  */
 public class Analyzer {
-    
+        
     /**
      * Method which calculates counts of rows from database with specific
      * level value and same process name. 
@@ -73,10 +73,10 @@ public class Analyzer {
      */
     public List<Result> analyzeDebugLogTable(List<DatabaseRow> elements) {
         int count;
-        List<Result> results = new ArrayList<>();
         int startID;
         DatabaseRow row;
-        
+        List<Result> results = new ArrayList<>();
+
         for(int i = 0; i < elements.size(); i++) {
             count = 1;
             startID = elements.get(i).getID();
@@ -86,12 +86,33 @@ public class Analyzer {
                 count++;
                 i++;
             }
-            
+                        
             row = elements.get(i);
-            results.add(new Result(count, startID, row.getID(), row.getLevel(),
-                    row.getModule(), row.getProcessId(), row.getThreadId(), "Execution of " + row.getIdentity()));
+            this.addResult(results, row, count, startID);
         }
         
         return Collections.unmodifiableList(results);
+    }
+    
+    /**
+     * Method which adds new result to list results
+     * @param results represents list to which will be result added
+     * @param row represents one of rows from database which 
+     * are grouped into one result
+     * @param count represents count of logs which are grouped into one result
+     * @param startID represents id of first databaseRow in group 
+     */
+    private void addResult(List<Result> results, DatabaseRow row, int count, int startID) {
+        String identity;
+        
+        if(row.getLevelAsString().compareTo("Error") == 0) {
+          identity = row.getLog();
+        } else {
+            identity = "Execution of " + row.getIdentity();
+        }
+            
+        results.add(new Result(count, startID, row.getID(), row.getLevel(),
+            row.getModule(), row.getProcessId(), row.getThreadId(), 
+            identity, row.getLevelAsString()));
     }
 }

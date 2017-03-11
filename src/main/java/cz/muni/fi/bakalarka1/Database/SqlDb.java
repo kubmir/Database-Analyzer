@@ -3,7 +3,6 @@ package cz.muni.fi.bakalarka1.Database;
 import cz.muni.fi.bakalarka1.Utils.ColumnsNames;
 import cz.muni.fi.bakalarka1.Utils.FasterXmlWriter;
 import cz.muni.fi.bakalarka1.Utils.ServiceFailureException;
-import cz.muni.fi.bakalarka1.Utils.XMLWriter;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -24,7 +23,6 @@ public class SqlDb {
     
     private static final Logger LOGGER = Logger.getLogger(SqlDb.class.getName());
     private final Analyzer analyzer;
-    //private final XMLWriter writer;
     private final FasterXmlWriter myWriter;
     private final String databaseURL;
     private BasicDataSource ds;
@@ -36,7 +34,6 @@ public class SqlDb {
      */
     public SqlDb(String pathToDB) throws ServiceFailureException {
         analyzer = new Analyzer();
-        //writer = new XMLWriter(); //len pre text praxe
         myWriter = new FasterXmlWriter();
         databaseURL = this.modifySlashes(pathToDB);
         this.createDataSource();
@@ -111,26 +108,7 @@ public class SqlDb {
     /**
      * Method whiche access tables in database
      * @throws ServiceFailureException in case of error while working with database
-     */
-    public void testAccessDB1() throws ServiceFailureException {
-        try {
-            this.createDataSource();
-            System.out.println("Data source created!");
-            //this.createIndex();
-            //System.out.println("Index created!");
-            List<String> names = this.getAllProcessNamesFromDatabase();
-            System.out.println("All names retrieved!");
-            //writer.createDataDoc();
-            for(String name : names) {
-               accessDebugLogTableByName(name);
-            }
-            this.dropIndex();
-        } catch(SQLException ex) {
-            throw new ServiceFailureException("Internal error: error while closing "
-                    + "ResultSet, statement or connection after accessing the database", ex);
-        }
-    }
-    
+     */    
     public void testAccessDB() throws ServiceFailureException {
         try {
             this.createDataSource();
@@ -186,7 +164,6 @@ public class SqlDb {
                 analyzer.calculateStatisticsForSpecificProcess(listOfElements, statistics);
                 System.out.println(statistics);
                 myWriter.writeDataToDoc(analyzer.analyzeDebugLogTable(listOfElements), statistics);
-                //writer.writeDataToDoc(analyzer.analyzeDebugLogTable(listOfElements), statistics); //Iba pre porovnanie do prace
                 listOfElements.clear();
                 System.gc();
                 i++;

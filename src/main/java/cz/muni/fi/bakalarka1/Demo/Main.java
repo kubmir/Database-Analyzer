@@ -13,14 +13,19 @@ public class Main {
 
     public static void main(String[] args) throws ServiceFailureException, SQLException {
         String pathToDB = "C:\\Users\\Miroslav Kubus\\Desktop\\Nepodporovany port v emailovem klientu\\Debug.db";
-        //String pathToDB = "C:\\Users\\Miroslav Kubus\\Desktop\\Debug_velka.db";
+        //String pathToDB = "C:\\Users\\Miroslav Kubus\\Desktop\\Debug.db";
         SqlDb test = new SqlDb(pathToDB);
         test.testAccessDB();
+        //toWeb();
         System.out.println("Done!");
     }
     
     public static void main1(String[] args) throws ServiceFailureException, SQLException {
-        String pathToDrbo = "C:\\Users\\Miroslav Kubus\\Desktop\\Nepodporovany port v emailovem klientu\\port_587.drbo";
+        toWeb();
+    }
+    
+    public static void toWeb() throws ServiceFailureException, SQLException {
+        String pathToDrbo = "C:\\Users\\Miroslav Kubus\\Desktop\\Nepodporovany port v emailovem klientu\\myXmlTest.xml";
         String pathToHtml = "C:\\Users\\Miroslav Kubus\\Desktop\\Nepodporovany port v emailovem klientu\\database.html";
         String pathToXSLT = "C:\\Users\\Miroslav Kubus\\Desktop\\Nepodporovany port v emailovem klientu\\XSLTsablona.xsl";
 
