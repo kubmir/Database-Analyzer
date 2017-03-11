@@ -69,13 +69,13 @@ public class Analyzer {
      * with same identity (info without line number between[]) and level it 
      * groups these DatabaseRows to one and calculate counts of them.
      * @param elements represents rows from database to be analyzed
-     * @return list of Result to be written to XML
+     * @return list of GroupOfLogs to be written to XML
      */
-    public List<Result> analyzeDebugLogTable(List<DatabaseRow> elements) {
+    public List<GroupOfLogs> analyzeDebugLogTable(List<DatabaseRow> elements) {
         int count;
         int startID;
         DatabaseRow row;
-        List<Result> results = new ArrayList<>();
+        List<GroupOfLogs> results = new ArrayList<>();
 
         for(int i = 0; i < elements.size(); i++) {
             count = 1;
@@ -102,7 +102,7 @@ public class Analyzer {
      * @param count represents count of logs which are grouped into one result
      * @param startID represents id of first databaseRow in group 
      */
-    private void addResult(List<Result> results, DatabaseRow row, int count, int startID) {
+    private void addResult(List<GroupOfLogs> results, DatabaseRow row, int count, int startID) {
         String identity;
         
         if(row.getLevelAsString().compareTo("Error") == 0) {
@@ -111,7 +111,7 @@ public class Analyzer {
             identity = "Execution of " + row.getIdentity();
         }
             
-        results.add(new Result(count, startID, row.getID(), row.getLevel(),
+        results.add(new GroupOfLogs(count, startID, row.getID(), row.getLevel(),
             row.getModule(), row.getProcessId(), row.getThreadId(), 
             identity, row.getLevelAsString()));
     }

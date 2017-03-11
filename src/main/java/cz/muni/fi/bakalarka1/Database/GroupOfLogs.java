@@ -4,7 +4,7 @@ package cz.muni.fi.bakalarka1.Database;
  * Class which represents rows in database grouped by function in info
  * @author Miroslav Kubus
  */
-public class Result {
+public class GroupOfLogs {
     private int count;
     private int startID;
     private int endID;
@@ -15,7 +15,7 @@ public class Result {
     private int threadID;
     private String identity;
     
-    public Result(int count, int startID, int endID, int level, int module, int processID, int threadID, String identity, String type) {
+    public GroupOfLogs(int count, int startID, int endID, int level, int module, int processID, int threadID, String identity, String type) {
         this.count = count;
         this.startID = startID;
         this.endID = endID;

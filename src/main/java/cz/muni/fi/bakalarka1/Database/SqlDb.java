@@ -1,7 +1,7 @@
 package cz.muni.fi.bakalarka1.Database;
 
 import cz.muni.fi.bakalarka1.Utils.ColumnsNames;
-import cz.muni.fi.bakalarka1.Utils.FasterXmlWriter;
+import cz.muni.fi.bakalarka1.Utils.XmlWriter;
 import cz.muni.fi.bakalarka1.Utils.ServiceFailureException;
 import java.io.File;
 import java.sql.Connection;
@@ -23,7 +23,7 @@ public class SqlDb {
     
     private static final Logger LOGGER = Logger.getLogger(SqlDb.class.getName());
     private final Analyzer analyzer;
-    private final FasterXmlWriter myWriter;
+    private final XmlWriter myWriter;
     private final String databaseURL;
     private BasicDataSource ds;
     
@@ -34,7 +34,7 @@ public class SqlDb {
      */
     public SqlDb(String pathToDB) throws ServiceFailureException {
         analyzer = new Analyzer();
-        myWriter = new FasterXmlWriter();
+        myWriter = new XmlWriter();
         databaseURL = this.modifySlashes(pathToDB);
         this.createDataSource();
     }

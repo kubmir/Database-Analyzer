@@ -2,7 +2,7 @@ package cz.muni.fi.bakalarka1.Demo;
 
 import cz.muni.fi.bakalarka1.Database.SqlDb;
 import cz.muni.fi.bakalarka1.Utils.ServiceFailureException;
-import cz.muni.fi.bakalarka1.Utils.XSLTProcessor;
+import cz.muni.fi.bakalarka1.Utils.Visualizer;
 import java.sql.SQLException;
 
 /**
@@ -16,22 +16,13 @@ public class Main {
         //String pathToDB = "C:\\Users\\Miroslav Kubus\\Desktop\\Debug.db";
         SqlDb test = new SqlDb(pathToDB);
         test.testAccessDB();
-        //toWeb();
+        Visualizer vis = new Visualizer();
+        vis.toWeb();
         System.out.println("Done!");
     }
     
     public static void main1(String[] args) throws ServiceFailureException, SQLException {
-        toWeb();
-    }
-    
-    public static void toWeb() throws ServiceFailureException, SQLException {
-        String pathToDrbo = "C:\\Users\\Miroslav Kubus\\Desktop\\Nepodporovany port v emailovem klientu\\myXmlTest.xml";
-        String pathToHtml = "C:\\Users\\Miroslav Kubus\\Desktop\\Nepodporovany port v emailovem klientu\\database.html";
-        String pathToXSLT = "C:\\Users\\Miroslav Kubus\\Desktop\\Nepodporovany port v emailovem klientu\\XSLTsablona.xsl";
-
-        XSLTProcessor pro = new XSLTProcessor();
-        pro.transformToHtml(pathToXSLT, pathToDrbo, pathToHtml);
-        pro.openHtml(pathToHtml);
-    }
-    
+        Visualizer vis = new Visualizer();
+        vis.toWeb();
+    }    
 }
