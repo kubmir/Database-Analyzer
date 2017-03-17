@@ -1,5 +1,6 @@
-package cz.muni.fi.bakalarka1.Utils;
+package cz.muni.fi.DebugDbAnalyzerApp.XmlOutput;
 
+import cz.muni.fi.DebugDbAnalyzerApp.Utils.ServiceFailureException;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;

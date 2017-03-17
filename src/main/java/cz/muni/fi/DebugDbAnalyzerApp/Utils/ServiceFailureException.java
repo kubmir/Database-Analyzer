@@ -1,4 +1,4 @@
-package cz.muni.fi.bakalarka1.Utils;
+package cz.muni.fi.DebugDbAnalyzerApp.Utils;
 
 /**
  * Class which represents exception which is thrown in case of 

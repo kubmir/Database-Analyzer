@@ -1,4 +1,4 @@
-package cz.muni.fi.bakalarka1.Utils;
+package cz.muni.fi.DebugDbAnalyzerApp.Utils;
 
 /**
  * Enum which represents names of columns in debug_log table

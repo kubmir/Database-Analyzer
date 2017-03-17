@@ -1,8 +1,8 @@
-package cz.muni.fi.bakalarka1.Demo;
+package cz.muni.fi.DebugDbAnalyzerApp.Demo;
 
-import cz.muni.fi.bakalarka1.Database.DatabaseAccessManagerImpl;
-import cz.muni.fi.bakalarka1.Utils.ServiceFailureException;
-import cz.muni.fi.bakalarka1.Utils.Visualizer;
+import cz.muni.fi.DebugDbAnalyzerApp.Database.DatabaseAccessManagerImpl;
+import cz.muni.fi.DebugDbAnalyzerApp.Utils.ServiceFailureException;
+import cz.muni.fi.DebugDbAnalyzerApp.XmlOutput.Visualizer;
 import java.sql.SQLException;
 
 /**

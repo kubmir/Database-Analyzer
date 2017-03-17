@@ -1,4 +1,4 @@
-package cz.muni.fi.bakalarka1.Database;
+package cz.muni.fi.DebugDbAnalyzerApp.Utils;
 
 /**
  * This class stores all statistics about one specific

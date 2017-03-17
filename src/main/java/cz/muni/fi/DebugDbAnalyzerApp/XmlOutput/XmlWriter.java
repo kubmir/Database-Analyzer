@@ -1,7 +1,8 @@
-package cz.muni.fi.bakalarka1.Utils;
+package cz.muni.fi.DebugDbAnalyzerApp.XmlOutput;
 
-import cz.muni.fi.bakalarka1.Database.ProcessStats;
-import cz.muni.fi.bakalarka1.Database.GroupOfLogs;
+import cz.muni.fi.DebugDbAnalyzerApp.Utils.GroupOfLogs;
+import cz.muni.fi.DebugDbAnalyzerApp.Utils.ProcessStats;
+import cz.muni.fi.DebugDbAnalyzerApp.Utils.ServiceFailureException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

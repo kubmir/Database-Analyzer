@@ -1,8 +1,10 @@
-package cz.muni.fi.bakalarka1.Database;
+package cz.muni.fi.DebugDbAnalyzerApp.Database;
 
-import cz.muni.fi.bakalarka1.Utils.ColumnsNames;
-import cz.muni.fi.bakalarka1.Utils.XmlWriter;
-import cz.muni.fi.bakalarka1.Utils.ServiceFailureException;
+import cz.muni.fi.DebugDbAnalyzerApp.Utils.DatabaseRow;
+import cz.muni.fi.DebugDbAnalyzerApp.Utils.ProcessStats;
+import cz.muni.fi.DebugDbAnalyzerApp.Utils.ColumnsNames;
+import cz.muni.fi.DebugDbAnalyzerApp.XmlOutput.XmlWriter;
+import cz.muni.fi.DebugDbAnalyzerApp.Utils.ServiceFailureException;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

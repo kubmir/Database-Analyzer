@@ -1,4 +1,4 @@
-package cz.muni.fi.bakalarka1.Database;
+package cz.muni.fi.DebugDbAnalyzerApp.Utils;
 
 /**
  * Class which represents rows in database grouped by function in info
