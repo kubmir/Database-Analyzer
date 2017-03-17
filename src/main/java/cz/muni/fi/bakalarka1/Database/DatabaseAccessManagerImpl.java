@@ -17,23 +17,24 @@ import org.apache.commons.dbcp2.BasicDataSource;
 
 /**
  * Class which provide access to database file defined by absolute path.
+ * It implements DatabaseAccessManager.
  * @author Miroslav Kubus
  */
-public class SqlDb {
+public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
     
-    private static final Logger LOGGER = Logger.getLogger(SqlDb.class.getName());
-    private final Analyzer analyzer;
+    private static final Logger LOGGER = Logger.getLogger(DatabaseAccessManagerImpl.class.getName());
+    private final DataAnalyzerImpl analyzer;
     private final XmlWriter myWriter;
     private final String databaseURL;
     private BasicDataSource ds;
     
     /**
-     * Constructor for constructing SqlDb class. It also creates instance of Analyzer.
+     * Constructor for constructing SqlDb class. It also creates instance of DataAnalyzerImpl.
      * @param pathToDB represents path to chosen database file
      * @throws ServiceFailureException in case of error during initialization of XmlWriter
      */
-    public SqlDb(String pathToDB) throws ServiceFailureException {
-        analyzer = new Analyzer();
+    public DatabaseAccessManagerImpl(String pathToDB) throws ServiceFailureException {
+        analyzer = new DataAnalyzerImpl();
         myWriter = new XmlWriter();
         databaseURL = this.modifySlashes(pathToDB);
         this.createDataSource();
@@ -48,11 +49,8 @@ public class SqlDb {
         ds.setUrl("jdbc:sqlite:/" + databaseURL);
     }
         
-    /**
-     * Method which create index on column process_name in table debug_log 
-     * @throws ServiceFailureException in case of error while creating index in database
-     */
-    public void createIndex() throws ServiceFailureException {
+    @Override
+    public void createIndexOnProcessName() throws ServiceFailureException {
         try(Connection con = ds.getConnection();
             Statement statement = con.createStatement()) {
             statement.executeUpdate("CREATE INDEX if not exists IX_debug_log_processName ON debug_log (process_name)");
@@ -64,11 +62,8 @@ public class SqlDb {
         }
     }
     
-    /**
-     * Method which create index on column process_name in table debug_log 
-     * @throws ServiceFailureException in case of error while creating index in database
-     */
-    private void dropIndex() throws ServiceFailureException {
+    @Override
+    public void dropProcessNameIndex() throws ServiceFailureException {
          try(Connection con = ds.getConnection();
             Statement statement = con.createStatement()) {
             statement.executeUpdate("DROP INDEX if exists IX_debug_log_processName");
@@ -80,11 +75,7 @@ public class SqlDb {
         }
     }
     
-    /**
-     * Method which retrieve all process names from database.
-     * @return list of all unique process names in database.
-     * @throws ServiceFailureException in case of error during processing.
-     */
+    @Override
     public List<String> getAllProcessNamesFromDatabase() throws ServiceFailureException {
         List<String> processNames = new ArrayList<>();
         
@@ -112,7 +103,7 @@ public class SqlDb {
     public void testAccessDB() throws ServiceFailureException {
         try {
             this.createDataSource();
-            this.createIndex();
+            this.createIndexOnProcessName();
             myWriter.writeStartOfDocument();
             //this.accessDebugLogTableByName("NetMonitorServer.dll");
             for(String name : this.getAllProcessNamesFromDatabase()) {
@@ -125,13 +116,8 @@ public class SqlDb {
         }
     }
     
-     /**
-     * Method which access all logs in table debug_log in database
-     * @param name represents name of specific process
-     * @return list of all logs which process name NAME 
-     * @throws ServiceFailureException in case of error while working with database
-     * @throws java.sql.SQLException in case of error while closing connection/statement/resultSet
-     */
+
+    @Override
     public List<DatabaseRow> accessDebugLogTableByName(String name) throws ServiceFailureException, SQLException {
         Connection con = null;
         PreparedStatement statement = null;

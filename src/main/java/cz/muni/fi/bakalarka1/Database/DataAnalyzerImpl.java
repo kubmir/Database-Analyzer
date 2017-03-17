@@ -6,17 +6,12 @@ import java.util.List;
 
 /**
  * Class which execute several different analyzes on data
- * from database.
+ * from database. It implements DataAnalyzer methods.
  * @author Miroslav Kubus
  */
-public class Analyzer {
+public class DataAnalyzerImpl implements DataAnalyzer {
         
-    /**
-     * Method which calculates counts of rows from database with specific
-     * level value and same process name. 
-     * @param elements represents list of rows from database with same process name
-     * @param statistics stores all statistics for specific process name
-     */
+    @Override
     public void calculateStatisticsForSpecificProcess(List<DatabaseRow> elements, ProcessStats statistics) {
         if(statistics.getProcessName().compareTo(elements.get(0).getProcessName()) == 0) {
             int level;
@@ -64,13 +59,7 @@ public class Analyzer {
         }
     }
     
-    /**
-     * Method which analyzes list elements. In case of sequence of DatabaseRows
-     * with same identity (info without line number between[]) and level it 
-     * groups these DatabaseRows to one and calculate counts of them.
-     * @param elements represents rows from database to be analyzed
-     * @return list of GroupOfLogs to be written to XML
-     */
+    @Override
     public List<GroupOfLogs> analyzeDebugLogTable(List<DatabaseRow> elements) {
         int count;
         int startID;

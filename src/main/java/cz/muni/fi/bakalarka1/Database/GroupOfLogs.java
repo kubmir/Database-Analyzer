@@ -14,6 +14,7 @@ public class GroupOfLogs {
     private int processID;
     private int threadID;
     private String identity;
+    private boolean visible;
     
     public GroupOfLogs(int count, int startID, int endID, int level, int module, int processID, int threadID, String identity, String type) {
         this.count = count;
@@ -25,6 +26,15 @@ public class GroupOfLogs {
         this.threadID = threadID;
         this.identity = identity;
         this.type = type;
+        this.visible = false;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
     }
 
     public String getType() {
