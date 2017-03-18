@@ -27,4 +27,20 @@ public interface DataAnalyzer {
      * @return list of GroupOfLogs to be written to XML
      */
     public List<GroupOfLogs> analyzeDebugLogTable(List<DatabaseRow> elements);    
+    
+    /**
+     * Method which filter 50 groups before error/critical group and 50 groups 
+     * after error/critical group. If there is less than 50 groups before/after
+     * error/critical group than less than 50 groups is set to be visible.
+     * @param allGroups represents all groups of logs of specific access to database
+     * @return list of groups with correctly set visibility
+     */
+    public List<GroupOfLogs> filterGroupsAroundErrorAndCritical(List<GroupOfLogs> allGroups);
+    
+    /**
+     * Method which returns filtered list which contain just visible groups.
+     * @param allGroups list of groups with set visibility to true/false
+     * @return list of all visible groups from allGroups
+     */
+     public List<GroupOfLogs> getAllVisibleGroups (List<GroupOfLogs> allGroups);
 }

@@ -25,12 +25,6 @@
         <xsl:if test="not(@processName) or generate-id() = generate-id(key('byProcessName', @processName)[1])">
      	      <h2><xsl:value-of select="@processName"/></h2>
             <details>
-   		      <!--<p><b>Count of criticals: </b><xsl:value-of select="sum(key('byProcessName', @processName)/@critical)"/></p> 
- 	 		      <p><b>Count of errors: </b><xsl:value-of select="sum(key('byProcessName', @processName)/@error)"/></p>
-  		      <p><b>Count of warnings: </b><xsl:value-of select="sum(key('byProcessName', @processName)/@warning)"/></p>
-   		      <p><b>Count of debugs: </b><xsl:value-of select="sum(key('byProcessName', @processName)/@debug)"/></p>
-  		      <p><b>Count of infos: </b><xsl:value-of select="sum(key('byProcessName', @processName)/@info)"/></p>
-  		      <p><b>Count of verbose: </b><xsl:value-of select="sum(key('byProcessName', @processName)/@verbose)"/></p>-->
               <table border="1">
                 <tr bgcolor="#1e90ff">
                   <th>Type</th>
@@ -61,8 +55,21 @@
                     </tr>
                     <xsl:for-each select=". | key('byProcessName', @processName)">
                       <xsl:for-each select="Log">
-                        <xsl:if test="@level = 800 or @level = 1000">
+                        <xsl:choose>
+                        <xsl:when test="@level = 800 or @level = 1000">
                           <tr>
+                            <td><font color="red"><xsl:value-of select="@pid"/></font></td>
+                            <td><font color="red"><xsl:value-of select="@startID"/></font></td>
+                            <td><font color="red"><xsl:value-of select="@endID"/></font></td>
+                            <td><font color="red"><xsl:value-of select="@count"/></font></td>
+                            <td><font color="red"><xsl:value-of select="@level"/></font></td>
+                            <td><font color="red"><xsl:value-of select="@type"/></font></td>
+                            <td><font color="red"><xsl:value-of select="@tid"/></font></td>
+                            <td><font color="red"><xsl:value-of select="text()"/></font></td>
+                          </tr>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <tr>
                             <td><xsl:value-of select="@pid"/></td>
                             <td><xsl:value-of select="@startID"/></td>
                             <td><xsl:value-of select="@endID"/></td>
@@ -72,7 +79,8 @@
                             <td><xsl:value-of select="@tid"/></td>
                             <td><xsl:value-of select="text()"/></td>
                           </tr>
-                        </xsl:if>
+                        </xsl:otherwise>
+                        </xsl:choose>
                       </xsl:for-each>
                     </xsl:for-each>
                   </table>
@@ -84,41 +92,6 @@
             </xsl:choose>
             </details>
         </xsl:if>
-    </xsl:template>
-  
-
-    <xsl:template match="Log" name="logTemplate">
-      <xsl:if test="@level = 800 or @level = 1000">
-        <p style="color:red;"><b><xsl:value-of select="@type"/> while <xsl:value-of select="text()"/></b></p> 
-  	    <details>
-          <table border ="1">
-            <tr bgcolor="#1e90ff">
-              <th>Process ID</th>
-              <th>First ID</th>
-              <th>Last ID</th>
-              <th>Count</th>
-              <th>Level</th>
-              <th>Type</th>
-              <th>Thread ID</th>
-            </tr>
-            <tr>
-              <td><xsl:value-of select="@pid"/></td>
-              <td><xsl:value-of select="@startID"/></td>
-              <td><xsl:value-of select="@endID"/></td>
-              <td><xsl:value-of select="@count"/></td>
-              <td><xsl:value-of select="@level"/></td>
-              <td><xsl:value-of select="@type"/></td>
-              <td><xsl:value-of select="@tid"/></td>
-            </tr>
-          </table>
-          <!--<p><b>Thread id: </b><xsl:value-of select="@tid"/></p>
-			    <p><b>Process id: </b><xsl:value-of select="@pid"/></p>		
- 			    <p><b>Level: </b><xsl:value-of select="@level"/> - <xsl:value-of select="@type"/></p> 
- 			    <p><b>Count of logs: </b><xsl:value-of select="@count"/></p>
- 			    <p><b>ID of first log in database: </b><xsl:value-of select="@startID"/></p>
- 			    <p><b>ID of last log in database: </b><xsl:value-of select="@endID"/></p>-->
-        </details>
-      </xsl:if>
     </xsl:template>
 </xsl:stylesheet>
 

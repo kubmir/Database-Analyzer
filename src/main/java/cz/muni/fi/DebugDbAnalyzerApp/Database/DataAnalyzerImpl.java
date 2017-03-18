@@ -83,7 +83,57 @@ public class DataAnalyzerImpl implements DataAnalyzer {
             this.addResult(results, row, count, startID);
         }
         
-        return Collections.unmodifiableList(results);
+        return Collections.unmodifiableList(filterGroupsAroundErrorAndCritical(results));
+    }
+    
+    @Override
+    public List<GroupOfLogs> filterGroupsAroundErrorAndCritical(List<GroupOfLogs> allGroups) {
+        int currentPosition = 0;
+        
+        for (GroupOfLogs group : allGroups) {
+            
+            if(group.getType().compareTo("Error") == 0 || group.getType().compareTo("Critical") == 0) {
+                
+                int position = currentPosition - 1;
+                //Setting visibility 50 groups before specific error/critical
+                while(position >= 0 && position >= currentPosition - 50 && 
+                        allGroups.get(position).getType().compareTo("Error") != 0 && 
+                        allGroups.get(position).getType().compareTo("Critical") != 0) {
+                    
+                    allGroups.get(position).setVisible(true);
+                    position -= 1;
+                }
+                
+                group.setVisible(true);
+                
+                position = currentPosition + 1;
+                //Setting visibility 50 groups after specific error/critical
+                while(position < allGroups.size() && position <= currentPosition + 50 && 
+                        allGroups.get(position).getType().compareTo("Error") != 0 && 
+                        allGroups.get(position).getType().compareTo("Critical") != 0) {
+                    
+                    allGroups.get(position).setVisible(true);
+                    position += 1;
+                }
+            }
+            
+            currentPosition += 1;
+        }
+        
+        return getAllVisibleGroups(allGroups);
+    }
+    
+    @Override
+    public List<GroupOfLogs> getAllVisibleGroups (List<GroupOfLogs> allGroups) {
+        List<GroupOfLogs> visible = new ArrayList<>();
+        
+        for(GroupOfLogs group : allGroups) {
+            if(group.isVisible()) {
+                visible.add(group);
+            }
+        }
+        
+        return Collections.unmodifiableList(visible);
     }
     
     /**
