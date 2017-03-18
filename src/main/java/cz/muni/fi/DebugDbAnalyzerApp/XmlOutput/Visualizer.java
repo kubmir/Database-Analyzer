@@ -11,9 +11,10 @@ import java.sql.SQLException;
  */
 public class Visualizer {
     
-    public void toWeb() throws ServiceFailureException, SQLException {
-        String pathToXML = "C:\\Users\\Miroslav Kubus\\Desktop\\Nepodporovany port v emailovem klientu\\myXmlTest.xml";
-        String pathToHtml = "C:\\Users\\Miroslav Kubus\\Desktop\\Nepodporovany port v emailovem klientu\\database.html";
+    public void toWeb(String pathToDbFolder) throws ServiceFailureException, SQLException {
+        String pathToXML = pathToDbFolder + File.separator + "xmlOutput.xml";
+        String pathToHtml = "src" + File.separator + "main" + File.separator 
+                + "resources" + File.separator + "htmlOutput.html";
         
         String pathToXSLT = "src" + File.separator + "main" + File.separator 
                 + "resources" + File.separator + "XSLTsablona.xsl";

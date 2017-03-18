@@ -26,11 +26,14 @@ public class XmlWriter {
     private final OutputStream outputStream;
     private final XMLStreamWriter writer;
     
-    public XmlWriter() throws ServiceFailureException {
+    public XmlWriter(String pathToDbFolder) throws ServiceFailureException {
         try {
-            outputStream = new FileOutputStream(new File("C:\\Users\\Miroslav Kubus\\Desktop\\Nepodporovany port v emailovem klientu\\myXmlTest.xml"));
+            outputStream = new FileOutputStream(new File(pathToDbFolder + 
+                    File.separator + "xmlOutput.xml"));
+            
             writer = XMLOutputFactory.newInstance().createXMLStreamWriter(
                 new OutputStreamWriter(outputStream, "utf-8"));
+        
         } catch(FileNotFoundException | UnsupportedEncodingException | XMLStreamException ex) {
             LOGGER.log(Level.SEVERE, "Error while creating XML writer!", ex);
             throw new ServiceFailureException("Internal error: error while "

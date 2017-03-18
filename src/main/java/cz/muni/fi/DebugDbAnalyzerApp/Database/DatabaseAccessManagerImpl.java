@@ -33,11 +33,12 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
     /**
      * Constructor for constructing SqlDb class. It also creates instance of DataAnalyzerImpl.
      * @param pathToDB represents path to chosen database file
+     * @param pathToDbFolder represents path to folder of chosen database file
      * @throws ServiceFailureException in case of error during initialization of XmlWriter
      */
-    public DatabaseAccessManagerImpl(String pathToDB) throws ServiceFailureException {
+    public DatabaseAccessManagerImpl(String pathToDB, String pathToDbFolder) throws ServiceFailureException {
         analyzer = new DataAnalyzerImpl();
-        myWriter = new XmlWriter();
+        myWriter = new XmlWriter(pathToDbFolder);
         databaseURL = this.modifySlashes(pathToDB);
         this.createDataSource();
     }

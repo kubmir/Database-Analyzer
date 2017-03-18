@@ -9,10 +9,9 @@
 
     <xsl:template match="Processes">
 	    <html xmlns="http://www.w3.org/1999/xhtml">
-	      <head>
+	<head>
           <title>Analyza debug databazy</title>
-          <meta http-equiv="Content-Style-Type" content="text/css"/>
-          <link rel="stylesheet" href="drbo.css" type="text/css" media="screen"/>
+          <link rel="stylesheet" href="htmlOutput.css" type="text/css" />
         </head>
         <body>
           <h1>Logs grouped by process name</h1>
@@ -23,8 +22,12 @@
 
     <xsl:template match="AppLogs" name="appTemplate">
         <xsl:if test="not(@processName) or generate-id() = generate-id(key('byProcessName', @processName)[1])">
-     	      <h2><xsl:value-of select="@processName"/></h2>
+     	    <div class="details">  
+            <h2>
+                <xsl:value-of select="@processName"/>
+            </h2>
             <details>
+              <summary>Process statistics and errors details</summary>
               <table border="1">
                 <tr bgcolor="#1e90ff">
                   <th>Type</th>
@@ -40,8 +43,10 @@
               </table>
               <xsl:choose>
                 <xsl:when test="sum(key('byProcessName', @processName)/@critical) + sum(key('byProcessName', @processName)/@error) > 0">
-                  <h4>Information about errors and criticals:</h4>
+                  <p/>
+                  <div class="logs">
                   <details>
+                  <summary>Information about errors and criticals</summary>
                   <table border ="1">
                     <tr bgcolor="#1e90ff">
                       <th>Process ID</th>
@@ -85,12 +90,14 @@
                     </xsl:for-each>
                   </table>
                   </details>
+                </div>
                 </xsl:when>
                 <xsl:otherwise>
                   <h4>No errors and criticals. No specific information about logs associated with this process name.</h4>
                 </xsl:otherwise>
             </xsl:choose>
             </details>
+            </div>
         </xsl:if>
     </xsl:template>
 </xsl:stylesheet>
