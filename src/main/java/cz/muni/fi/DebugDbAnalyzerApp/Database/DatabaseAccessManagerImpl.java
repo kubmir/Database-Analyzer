@@ -56,6 +56,7 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
     public void createIndexOnProcessName() throws ServiceFailureException {
         try(Connection con = ds.getConnection();
             Statement statement = con.createStatement()) {
+            statement.setQueryTimeout(60);
             statement.executeUpdate("CREATE INDEX if not exists IX_debug_log_processName ON debug_log (process_name)");
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, "Error while creating index on process_name "
@@ -106,13 +107,19 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
     public void testAccessDB() throws ServiceFailureException {
         try {
             this.createDataSource();
-            this.createIndexOnProcessName();
+            
+            try {
+                this.createIndexOnProcessName();
+            } catch (ServiceFailureException ex) {
+                LOGGER.log(Level.SEVERE, "Error while creating index in DB!", ex);
+            }
+            
             myWriter.writeStartOfDocument();
-            //this.accessDebugLogTableByName("NetMonitorServer.dll");
             for(String name : this.getAllProcessNamesFromDatabase()) {
                accessDebugLogTableByName(name);
             }
             myWriter.writeEndOfDocument();
+            this.dropProcessNameIndex();
         } catch(SQLException ex) {
             throw new ServiceFailureException("Internal error: error while closing "
                     + "ResultSet, statement or connection after accessing the database", ex);

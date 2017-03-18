@@ -140,7 +140,12 @@ public class XmlWriter {
             writer.writeAttribute("pid", String.valueOf(res.getProcessID()));
             writer.writeAttribute("tid", String.valueOf(res.getThreadID()));
             writer.writeAttribute("type", res.getType());
-            writer.writeCharacters(res.getIdentity());
+            
+            if(res.getType().compareTo("Error") == 0 || res.getType().compareTo("Critical") == 0) {
+                writer.writeCharacters(removeNonValidXMLCharacters(res.getIdentity()));
+            } else {
+                writer.writeCharacters(res.getIdentity());
+            }
             writer.writeEndElement();
         } catch (XMLStreamException ex) {
             LOGGER.log(Level.SEVERE, "Error while writing log with startID " 
@@ -148,5 +153,35 @@ public class XmlWriter {
             throw new ServiceFailureException("Internal error: error while "
                     + "writing log with startID " + res.getStartID() + "!", ex);
         }
+    }
+    
+    /**
+     * Method which remove non valid xml characters from description of errors
+     * @param description string to be checked
+     * @return string same as description without forbidden characters
+     */
+    private String removeNonValidXMLCharacters(String description) {
+        StringBuilder output = new StringBuilder();
+        char current;
+
+        if (description == null || description.compareTo("") == 0) {
+            return "";
+        }
+        
+        for (int i = 0; i < description.length(); i++) {
+            current = description.charAt(i);
+            
+            if ((current == 0x9) || (current == 0xA) || (current == 0xD) ||
+                ((current >= 0x20) && (current <= 0xD7FF)) ||
+                ((current >= 0xE000) && (current <= 0xFFFD)) ||
+                ((current >= 0x10000) && (current <= 0x10FFFF))) {
+                
+                output.append(current);
+            } else {
+                output.append(' ');
+            }
+        }
+        
+        return output.toString();
     }
 }

@@ -13,7 +13,8 @@ import java.sql.SQLException;
 public class Main {
 
     public static void main(String[] args) throws ServiceFailureException, SQLException {
-        String pathToDB = "C:\\Users\\Miroslav Kubus\\Desktop\\Nepodporovany port v emailovem klientu\\Debug.db";
+        //String pathToDB = "C:\\Users\\Miroslav Kubus\\Desktop\\Nepodporovany port v emailovem klientu\\Debug.db";
+        String pathToDB = "C:\\Users\\Miroslav Kubus\\Desktop\\Neni zavedena vrstva\\Debug.db";
         String pathToDbFolder = pathToDB.substring(0, pathToDB.lastIndexOf(File.separator));
 
         DatabaseAccessManagerImpl test = new DatabaseAccessManagerImpl(pathToDB, pathToDbFolder);
