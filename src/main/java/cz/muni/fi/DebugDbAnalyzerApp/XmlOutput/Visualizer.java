@@ -17,7 +17,7 @@ public class Visualizer {
                 + "resources" + File.separator + "htmlOutput.html";
         
         String pathToXSLT = "src" + File.separator + "main" + File.separator 
-                + "resources" + File.separator + "XSLTsablona.xsl";
+                + "resources" + File.separator + "XSLT_all.xsl";
 
         XSLTProcessor pro = new XSLTProcessor();
         pro.transformToHtml(pathToXSLT, pathToXML, pathToHtml);

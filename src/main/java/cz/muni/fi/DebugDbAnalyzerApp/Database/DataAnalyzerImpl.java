@@ -120,7 +120,7 @@ public class DataAnalyzerImpl implements DataAnalyzer {
             currentPosition += 1;
         }
         
-        return getAllVisibleGroups(allGroups);
+        return allGroups;
     }
     
     @Override

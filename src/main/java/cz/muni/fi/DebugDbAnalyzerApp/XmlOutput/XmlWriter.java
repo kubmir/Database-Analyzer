@@ -141,6 +141,8 @@ public class XmlWriter {
             writer.writeAttribute("tid", String.valueOf(res.getThreadID()));
             writer.writeAttribute("type", res.getType());
             
+            writer.writeAttribute("visible", String.valueOf(res.isVisible()));//pre moznost so vsetkymi
+            
             if(res.getType().compareTo("Error") == 0 || res.getType().compareTo("Critical") == 0) {
                 writer.writeCharacters(removeNonValidXMLCharacters(res.getIdentity()));
             } else {
