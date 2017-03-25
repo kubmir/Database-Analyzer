@@ -1,6 +1,6 @@
 package cz.muni.fi.DebugDbAnalyzerApp.Utils;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 /**
  * Class which represents one specific row from debug_log 
@@ -17,11 +17,11 @@ public class DatabaseRow {
     private String process_name;
     private int process_id;
     private int thread_id;
-    private Date date_time;
+    private Timestamp date_time;
     private String identity;
     
     public DatabaseRow(int id, String log, String info, int level, int module,
-            String processName, int processId, int threadId, Date dateTime) {
+            String processName, int processId, int threadId, Timestamp dateTime) {
         this.id = id;
         this.log = log;
         this.info = info;
@@ -98,7 +98,7 @@ public class DatabaseRow {
         this.thread_id = threadId;
     }
     
-    public void setDateTime(Date date) {
+    public void setDateTime(Timestamp date) {
         this.date_time = date;
     }
     
@@ -134,7 +134,7 @@ public class DatabaseRow {
         return this.thread_id;
     }
     
-    public Date getDateTime() {
+    public Timestamp getDateTime() {
         return this.date_time;
     }  
     

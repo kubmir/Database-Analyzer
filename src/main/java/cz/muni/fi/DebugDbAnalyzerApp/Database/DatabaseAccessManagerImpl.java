@@ -154,7 +154,7 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
                         rs.getString(ColumnsNames.LOG.getNumVal()), rs.getString(ColumnsNames.INFO.getNumVal()),
                         rs.getInt(ColumnsNames.LEVEL.getNumVal()), rs.getInt(ColumnsNames.MODULE.getNumVal()), 
                         rs.getString(ColumnsNames.PROCESS_NAME.getNumVal()), rs.getInt(ColumnsNames.PROCESS_ID.getNumVal()), 
-                        rs.getInt(ColumnsNames.THREAD_ID.getNumVal()), rs.getDate(ColumnsNames.DATE_TIME.getNumVal())));
+                        rs.getInt(ColumnsNames.THREAD_ID.getNumVal()), rs.getTimestamp(ColumnsNames.DATE_TIME.getNumVal())));
                     size++;
                 }
                 analyzer.calculateStatisticsForSpecificProcess(listOfElements, statistics);

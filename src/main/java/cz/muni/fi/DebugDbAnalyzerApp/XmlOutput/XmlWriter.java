@@ -140,14 +140,16 @@ public class XmlWriter {
             writer.writeAttribute("pid", String.valueOf(res.getProcessID()));
             writer.writeAttribute("tid", String.valueOf(res.getThreadID()));
             writer.writeAttribute("type", res.getType());
-            
-            writer.writeAttribute("visible", String.valueOf(res.isVisible()));//pre moznost so vsetkymi
+            writer.writeAttribute("module", String.valueOf(res.getModule()));
+            writer.writeAttribute("startDate", res.getStartDate());
+            writer.writeAttribute("endDate", res.getEndDate());
             
             if(res.getType().compareTo("Error") == 0 || res.getType().compareTo("Critical") == 0) {
                 writer.writeCharacters(removeNonValidXMLCharacters(res.getIdentity()));
             } else {
                 writer.writeCharacters(res.getIdentity());
             }
+            
             writer.writeEndElement();
         } catch (XMLStreamException ex) {
             LOGGER.log(Level.SEVERE, "Error while writing log with startID " 

@@ -14,9 +14,14 @@ public class GroupOfLogs {
     private int processID;
     private int threadID;
     private String identity;
+    private String startDate;
+    private String endDate;
     private boolean visible;
     
-    public GroupOfLogs(int count, int startID, int endID, int level, int module, int processID, int threadID, String identity, String type) {
+    public GroupOfLogs(int count, int startID, int endID, int level, int module, 
+            int processID, int threadID, String identity, String type, 
+            String startDate, String endDate) {
+        
         this.count = count;
         this.startID = startID;
         this.endID = endID;
@@ -26,15 +31,9 @@ public class GroupOfLogs {
         this.threadID = threadID;
         this.identity = identity;
         this.type = type;
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.visible = false;
-    }
-
-    public boolean isVisible() {
-        return visible;
-    }
-
-    public void setVisible(boolean visible) {
-        this.visible = visible;
     }
 
     public String getType() {
@@ -108,12 +107,38 @@ public class GroupOfLogs {
     public void setThreadID(int threadID) {
         this.threadID = threadID;
     }
+    
+      public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
 
     @Override
     public String toString() {
-        return "Result{" + "count=" + count + ", startID=" + startID 
-                + ", endID=" + endID + ", level=" + level + ", module=" 
-                + module + ", processID=" + processID + ", threadID=" 
-                + threadID + ", identity=" + identity + '}';
+        return "GroupOfLogs{" + "count=" + count + ", startID=" + startID + 
+                ", endID=" + endID + ", level=" + level + ", type=" + type + 
+                ", module=" + module + ", processID=" + processID + 
+                ", threadID=" + threadID + ", identity=" + identity + 
+                ", startDate=" + startDate + ", endDate=" + endDate + 
+                ", visible=" + visible + '}';
     }
 }

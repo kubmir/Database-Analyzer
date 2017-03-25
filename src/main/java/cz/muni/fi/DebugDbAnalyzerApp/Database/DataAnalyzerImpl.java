@@ -67,11 +67,13 @@ public class DataAnalyzerImpl implements DataAnalyzer {
         int count;
         int startID;
         DatabaseRow row;
+        String startDate;
         List<GroupOfLogs> results = new ArrayList<>();
 
         for(int i = 0; i < elements.size(); i++) {
             count = 1;
             startID = elements.get(i).getID();
+            startDate = String.valueOf(elements.get(i).getDateTime());
             
             while(i < elements.size() - 1 && elements.get(i).getLevel() == elements.get(i + 1).getLevel() 
                     && elements.get(i).getIdentity().equals(elements.get(i + 1).getIdentity())) {
@@ -80,7 +82,7 @@ public class DataAnalyzerImpl implements DataAnalyzer {
             }
                         
             row = elements.get(i);
-            this.addResult(results, row, count, startID);
+            this.addResult(results, row, count, startID, startDate);
         }
         
         return Collections.unmodifiableList(filterGroupsAroundErrorAndCritical(results));
@@ -120,11 +122,11 @@ public class DataAnalyzerImpl implements DataAnalyzer {
             currentPosition += 1;
         }
         
-        return allGroups;
+        return getAllVisibleGroups(allGroups);
     }
     
     @Override
-    public List<GroupOfLogs> getAllVisibleGroups (List<GroupOfLogs> allGroups) {
+    public List<GroupOfLogs> getAllVisibleGroups(List<GroupOfLogs> allGroups) {
         List<GroupOfLogs> visible = new ArrayList<>();
         
         for(GroupOfLogs group : allGroups) {
@@ -144,17 +146,17 @@ public class DataAnalyzerImpl implements DataAnalyzer {
      * @param count represents count of logs which are grouped into one result
      * @param startID represents id of first databaseRow in group 
      */
-    private void addResult(List<GroupOfLogs> results, DatabaseRow row, int count, int startID) {
+    private void addResult(List<GroupOfLogs> results, DatabaseRow row, int count, int startID, String startDate) {
         String identity;
         
         if(row.getLevelAsString().compareTo("Error") == 0) {
-          identity = row.getLog();
+            identity = row.getLog();
         } else {
             identity = "Execution of " + row.getIdentity();
         }
             
         results.add(new GroupOfLogs(count, startID, row.getID(), row.getLevel(),
             row.getModule(), row.getProcessId(), row.getThreadId(), 
-            identity, row.getLevelAsString()));
+            identity, row.getLevelAsString(), startDate, String.valueOf(row.getDateTime())));
     }
 }
