@@ -120,6 +120,8 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
             }
             myWriter.writeEndOfDocument();
             this.dropProcessNameIndex();
+            //System.out.println(analyzer.getDatabaseStatistics().getErrorsCriticalsOfFunctionStats());
+            //System.out.println(analyzer.getDatabaseStatistics().getProcessErrorsCriticalsStats());
         } catch(SQLException ex) {
             throw new ServiceFailureException("Internal error: error while closing "
                     + "ResultSet, statement or connection after accessing the database", ex);

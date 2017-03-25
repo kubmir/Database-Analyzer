@@ -1,6 +1,7 @@
 package cz.muni.fi.DebugDbAnalyzerApp.Database;
 
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.DatabaseRow;
+import cz.muni.fi.DebugDbAnalyzerApp.Utils.DatabaseStatsImpl;
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.GroupOfLogs;
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.ProcessStats;
 import java.util.ArrayList;
@@ -14,9 +15,21 @@ import java.util.List;
  */
 public class DataAnalyzerImpl implements DataAnalyzer {
         
+    private final DatabaseStatsImpl databaseStatistics;
+ 
+    /**
+     * Constructor for DataAnalyzerImpl class. It creates an instance of 
+     * DatabaseStatsImpl class.
+     */
+    public DataAnalyzerImpl() {
+        this.databaseStatistics = new DatabaseStatsImpl();
+    }
+    
     @Override
     public void calculateStatisticsForSpecificProcess(List<DatabaseRow> elements, ProcessStats statistics) {
-        if(statistics.getProcessName().compareTo(elements.get(0).getProcessName()) == 0) {
+        String process = elements.get(0).getProcessName();
+        
+        if(statistics.getProcessName().compareTo(process) == 0) {
             int level;
             int verbose = 0;
             int debug = 0;
@@ -59,6 +72,8 @@ public class DataAnalyzerImpl implements DataAnalyzer {
             statistics.setInfo(info);
             statistics.setVerbose(verbose);
             statistics.setWarning(warning);
+            databaseStatistics.addErrorsOfProcessCount(process, error);
+            databaseStatistics.addCriticalsOfProcessCount(process, critical);
         }
     }
     
@@ -71,18 +86,26 @@ public class DataAnalyzerImpl implements DataAnalyzer {
         List<GroupOfLogs> results = new ArrayList<>();
 
         for(int i = 0; i < elements.size(); i++) {
+            row = elements.get(i);
             count = 1;
-            startID = elements.get(i).getID();
-            startDate = String.valueOf(elements.get(i).getDateTime());
+            startID = row.getID();
+            startDate = String.valueOf(row.getDateTime());
+
+            if(row.getLevelAsString().compareTo("Error") == 0) {
+                databaseStatistics.addErrorOfFunctionCount(row.getIdentity());
+            }
             
-            while(i < elements.size() - 1 && elements.get(i).getLevel() == elements.get(i + 1).getLevel() 
-                    && elements.get(i).getIdentity().equals(elements.get(i + 1).getIdentity())) {
+            if(row.getLevelAsString().compareTo("Critical") == 0) {
+                databaseStatistics.addCriticalOfFunctionCount(row.getIdentity());
+            }
+
+            while(i < elements.size() - 1 && row.getLevel() == elements.get(i + 1).getLevel() 
+                    && row.getIdentity().equals(elements.get(i + 1).getIdentity())) {
                 count++;
                 i++;
             }
                         
-            row = elements.get(i);
-            this.addResult(results, row, count, startID, startDate);
+            addResult(results, row, count, startID, startDate);
         }
         
         return Collections.unmodifiableList(filterGroupsAroundErrorAndCritical(results));
@@ -136,6 +159,11 @@ public class DataAnalyzerImpl implements DataAnalyzer {
         }
         
         return Collections.unmodifiableList(visible);
+    }
+    
+    @Override
+    public DatabaseStatsImpl getDatabaseStatistics() {
+        return this.databaseStatistics;
     }
     
     /**

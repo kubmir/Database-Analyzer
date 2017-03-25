@@ -1,6 +1,7 @@
 package cz.muni.fi.DebugDbAnalyzerApp.Database;
 
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.DatabaseRow;
+import cz.muni.fi.DebugDbAnalyzerApp.Utils.DatabaseStatsImpl;
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.GroupOfLogs;
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.ProcessStats;
 import java.util.List;
@@ -42,5 +43,11 @@ public interface DataAnalyzer {
      * @param allGroups list of groups with set visibility to true/false
      * @return list of all visible groups from allGroups
      */
-     public List<GroupOfLogs> getAllVisibleGroups (List<GroupOfLogs> allGroups);
+    public List<GroupOfLogs> getAllVisibleGroups (List<GroupOfLogs> allGroups);
+    
+    /**
+     * Method which returns statistics about whole database.
+     * @return database statistics.
+     */
+    public DatabaseStatsImpl getDatabaseStatistics();
 }

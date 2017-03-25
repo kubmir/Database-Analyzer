@@ -18,7 +18,6 @@ public class DatabaseRow {
     private int process_id;
     private int thread_id;
     private Timestamp date_time;
-    private String identity;
     
     public DatabaseRow(int id, String log, String info, int level, int module,
             String processName, int processId, int threadId, Timestamp dateTime) {
@@ -153,7 +152,6 @@ public class DatabaseRow {
         return "DatabaseRow{" + "id=" + id + ", log=" + log + ", info=" + info 
                 + ", level=" + level + ", module=" + module + ", process_name="
                 + process_name + ", process_id=" + process_id + ", thread_id=" 
-                + thread_id + ", date_time=" + date_time + ", identity=" 
-                + identity + '}';
+                + thread_id + ", date_time=" + date_time + '}';
     }
 }
