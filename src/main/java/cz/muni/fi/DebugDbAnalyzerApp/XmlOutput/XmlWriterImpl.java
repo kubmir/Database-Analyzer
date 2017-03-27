@@ -1,8 +1,8 @@
 package cz.muni.fi.DebugDbAnalyzerApp.XmlOutput;
 
-import cz.muni.fi.DebugDbAnalyzerApp.Utils.ErrorAndCriticalStats;
-import cz.muni.fi.DebugDbAnalyzerApp.Utils.GroupOfLogs;
-import cz.muni.fi.DebugDbAnalyzerApp.Utils.ProcessStats;
+import cz.muni.fi.DebugDbAnalyzerApp.DataStorage.ErrorAndCriticalStats;
+import cz.muni.fi.DebugDbAnalyzerApp.DataStorage.GroupOfLogs;
+import cz.muni.fi.DebugDbAnalyzerApp.DataStorage.ProcessStats;
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.ServiceFailureException;
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -1,4 +1,4 @@
-package cz.muni.fi.DebugDbAnalyzerApp.Utils;
+package cz.muni.fi.DebugDbAnalyzerApp.DataStorage;
 
 /**
  * Class which represents rows in database grouped by function in info

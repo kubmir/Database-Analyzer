@@ -1,6 +1,6 @@
 package cz.muni.fi.DebugDbAnalyzerApp.Database;
 
-import cz.muni.fi.DebugDbAnalyzerApp.Utils.DatabaseRow;
+import cz.muni.fi.DebugDbAnalyzerApp.DataStorage.DatabaseRow;
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.ServiceFailureException;
 import java.sql.SQLException;
 import java.util.List;

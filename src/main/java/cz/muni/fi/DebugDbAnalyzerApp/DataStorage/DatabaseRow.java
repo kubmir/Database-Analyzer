@@ -1,4 +1,4 @@
-package cz.muni.fi.DebugDbAnalyzerApp.Utils;
+package cz.muni.fi.DebugDbAnalyzerApp.DataStorage;
 
 import java.sql.Timestamp;
 

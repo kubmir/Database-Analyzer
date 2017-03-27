@@ -1,5 +1,6 @@
-package cz.muni.fi.DebugDbAnalyzerApp.Utils;
+package cz.muni.fi.DebugDbAnalyzerApp.Database;
 
+import cz.muni.fi.DebugDbAnalyzerApp.DataStorage.ErrorAndCriticalStats;
 import java.util.Map;
 
 /**

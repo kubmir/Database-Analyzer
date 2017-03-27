@@ -1,7 +1,7 @@
 package cz.muni.fi.DebugDbAnalyzerApp.Database;
 
-import cz.muni.fi.DebugDbAnalyzerApp.Utils.DatabaseRow;
-import cz.muni.fi.DebugDbAnalyzerApp.Utils.ProcessStats;
+import cz.muni.fi.DebugDbAnalyzerApp.DataStorage.DatabaseRow;
+import cz.muni.fi.DebugDbAnalyzerApp.DataStorage.ProcessStats;
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.ColumnsNames;
 import cz.muni.fi.DebugDbAnalyzerApp.XmlOutput.XmlWriterImpl;
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.ServiceFailureException;
