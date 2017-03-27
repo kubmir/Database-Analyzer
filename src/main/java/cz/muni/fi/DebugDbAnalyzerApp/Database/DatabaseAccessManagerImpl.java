@@ -3,7 +3,7 @@ package cz.muni.fi.DebugDbAnalyzerApp.Database;
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.DatabaseRow;
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.ProcessStats;
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.ColumnsNames;
-import cz.muni.fi.DebugDbAnalyzerApp.XmlOutput.XmlWriter;
+import cz.muni.fi.DebugDbAnalyzerApp.XmlOutput.XmlWriterImpl;
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.ServiceFailureException;
 import java.io.File;
 import java.sql.Connection;
@@ -26,7 +26,7 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
     
     private static final Logger LOGGER = Logger.getLogger(DatabaseAccessManagerImpl.class.getName());
     private final DataAnalyzerImpl analyzer;
-    private final XmlWriter myWriter;
+    private final XmlWriterImpl myWriter;
     private final String databaseURL;
     private BasicDataSource ds;
     
@@ -34,11 +34,11 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
      * Constructor for constructing SqlDb class. It also creates instance of DataAnalyzerImpl.
      * @param pathToDB represents path to chosen database file
      * @param pathToDbFolder represents path to folder of chosen database file
-     * @throws ServiceFailureException in case of error during initialization of XmlWriter
+     * @throws ServiceFailureException in case of error during initialization of XmlWriterImpl
      */
     public DatabaseAccessManagerImpl(String pathToDB, String pathToDbFolder) throws ServiceFailureException {
         analyzer = new DataAnalyzerImpl();
-        myWriter = new XmlWriter(pathToDbFolder);
+        myWriter = new XmlWriterImpl(pathToDbFolder);
         databaseURL = this.modifySlashes(pathToDB);
         this.createDataSource();
     }
@@ -109,19 +109,21 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
             this.createDataSource();
             
             try {
-                this.createIndexOnProcessName();
+                createIndexOnProcessName();
             } catch (ServiceFailureException ex) {
                 LOGGER.log(Level.SEVERE, "Error while creating index in DB!", ex);
             }
             
             myWriter.writeStartOfDocument();
+            myWriter.writeStartOfElement("Logs");
             for(String name : this.getAllProcessNamesFromDatabase()) {
                accessDebugLogTableByName(name);
             }
+            myWriter.writeEndOfElement();
+            myWriter.writeDatabaseStats(analyzer.getDatabaseStatistics().getErrorsCriticalsOfFunctionStats(), "FunctionStats");
+            myWriter.writeDatabaseStats(analyzer.getDatabaseStatistics().getProcessErrorsCriticalsStats(), "ProcessStats");
             myWriter.writeEndOfDocument();
-            this.dropProcessNameIndex();
-            //System.out.println(analyzer.getDatabaseStatistics().getErrorsCriticalsOfFunctionStats());
-            //System.out.println(analyzer.getDatabaseStatistics().getProcessErrorsCriticalsStats());
+            dropProcessNameIndex();
         } catch(SQLException ex) {
             throw new ServiceFailureException("Internal error: error while closing "
                     + "ResultSet, statement or connection after accessing the database", ex);
@@ -161,7 +163,7 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
                 }
                 analyzer.calculateStatisticsForSpecificProcess(listOfElements, statistics);
                 System.out.println(statistics);
-                myWriter.writeDataToDoc(analyzer.analyzeDebugLogTable(listOfElements), statistics);
+                myWriter.writeLogsToOutputDoc(analyzer.analyzeDebugLogTable(listOfElements), statistics);
                 listOfElements.clear();
                 System.gc();
                 i++;
