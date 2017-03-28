@@ -123,9 +123,9 @@ public class XmlWriterImpl implements XmlWriter {
             String elementName) throws ServiceFailureException {
         
         writeStartOfElement(elementName);
-        
+        String el = elementName.substring(0, elementName.length() - 5); 
         for(String key : stats.keySet()) {
-            writeStatistics(key, stats.get(key));
+            writeStatistics(key, stats.get(key), el);
         }
         
         writeEndOfElement();
@@ -139,8 +139,8 @@ public class XmlWriterImpl implements XmlWriter {
      * @throws ServiceFailureException in case of error while writing statistics 
      * to output xml file.
      */
-    private void writeStatistics(String key, ErrorAndCriticalStats stats) throws ServiceFailureException {
-        writeStartOfElement("Statistic");       
+    private void writeStatistics(String key, ErrorAndCriticalStats stats, String element) throws ServiceFailureException {
+        writeStartOfElement(element);       
         writeElementWithCharacters("Name", key);
         writeElementWithCharacters("Errors", String.valueOf(stats.getError()));
         writeElementWithCharacters("Criticals", String.valueOf(stats.getCritical()));

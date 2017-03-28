@@ -2,24 +2,66 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
                 xmlns="http://www.w3.org/1999/xhtml">
 
-  <xsl:output method="xml" doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN"
+    <xsl:output method="xml" doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN"
               doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" encoding="UTF-8" indent="yes"/>
 
     <xsl:key name="byProcessName" match="Processes/AppLogs[@processName]" use="@processName" />
 
-    <xsl:template match="Processes">
-	    <html xmlns="http://www.w3.org/1999/xhtml">
-	<head>
+    <xsl:template match="Database">
+      <html xmlns="http://www.w3.org/1999/xhtml">
+        <head>
           <title>Analyza debug databazy</title>
           <link rel="stylesheet" href="htmlOutput.css" type="text/css" />
         </head>
         <body>
-          <h1>Logs grouped by process name</h1>
-          <xsl:apply-templates/>
+          <xsl:call-template name="logs"/>
         </body>
       </html>
     </xsl:template>
+    
+    <xsl:template match="Logs" name="logs">
+      <h1>Logs grouped by process name</h1>
+      <xsl:call-template name="functionStats"/>
+      <xsl:call-template name="processStats"/>
+    </xsl:template>
+    
+    <xsl:template match="FunctionStats" name="functionStats">
+      <table border="1" bgcolor="#1e90ff">
+        <tr>
+          <th>Function name</th>
+          <th>Errors count</th>
+          <th>Criticals count</th>
+        </tr>
+        <xsl:apply-templates mode="specificStats" select="FunctionStats"/>
+      </table>
+    </xsl:template>
+  
+    <xsl:template match="ProcessStats" name="processStats">
+      <table border="1" bgcolor="#1e90ff">
+        <tr>
+          <th>Process name</th>
+          <th>Errors count</th>
+          <th>Criticals count</th>
+        </tr>
+        <xsl:apply-templates mode="specificStats" select="ProcessStats"/>
+      </table>
+    </xsl:template>
+    
+    <xsl:template match="Function | Process" mode="specificStats">
+      <tr>
+        <td>
+          <xsl:value-of select="Name"/>
+        </td>
+        <td>
+          <xsl:value-of select="Errors"/>
+        </td>
+        <td>
+          <xsl:value-of select="Criticals"/>
+        </td>
+     </tr>
+    </xsl:template>
 
+    <!--
     <xsl:template match="AppLogs" name="appTemplate">
         <xsl:if test="not(@processName) or generate-id() = generate-id(key('byProcessName', @processName)[1])">
      	    <div class="details">  
@@ -100,5 +142,6 @@
             </div>
         </xsl:if>
     </xsl:template>
+    -->
 </xsl:stylesheet>
 
