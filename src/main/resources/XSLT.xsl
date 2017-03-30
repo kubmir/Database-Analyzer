@@ -5,7 +5,7 @@
     <xsl:output method="xml" doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN"
               doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" encoding="UTF-8" indent="yes"/>
 
-    <xsl:key name="byProcessName" match="Processes/AppLogs[@processName]" use="@processName" />
+    <xsl:key name="byProcessName" match="Database/Logs/AppLogs[@processName]" use="@processName" />
 
     <xsl:template match="Database">
       <html xmlns="http://www.w3.org/1999/xhtml">
@@ -14,20 +14,23 @@
           <link rel="stylesheet" href="htmlOutput.css" type="text/css" />
         </head>
         <body>
-          <xsl:call-template name="logs"/>
+            <h1>Statistics about analyzed database</h1>
+            <xsl:call-template name="functionStats"/>
+            <xsl:call-template name="processStats"/>
+            <xsl:call-template name="logs"/>
         </body>
       </html>
     </xsl:template>
     
     <xsl:template match="Logs" name="logs">
       <h1>Logs grouped by process name</h1>
-      <xsl:call-template name="functionStats"/>
-      <xsl:call-template name="processStats"/>
+      <xsl:apply-templates mode="appTemplate" select="Logs"/>
     </xsl:template>
     
     <xsl:template match="FunctionStats" name="functionStats">
-      <table border="1" bgcolor="#1e90ff">
-        <tr>
+      <h2>Statistic about functions which caused errors</h2>
+      <table border="1">
+        <tr bgcolor="#1e90ff">
           <th>Function name</th>
           <th>Errors count</th>
           <th>Criticals count</th>
@@ -37,8 +40,9 @@
     </xsl:template>
   
     <xsl:template match="ProcessStats" name="processStats">
-      <table border="1" bgcolor="#1e90ff">
-        <tr>
+      <h2>Statistic about processes which caused errors</h2>
+      <table border="1">
+        <tr bgcolor="#1e90ff">
           <th>Process name</th>
           <th>Errors count</th>
           <th>Criticals count</th>
@@ -48,21 +52,22 @@
     </xsl:template>
     
     <xsl:template match="Function | Process" mode="specificStats">
-      <tr>
-        <td>
-          <xsl:value-of select="Name"/>
-        </td>
-        <td>
-          <xsl:value-of select="Errors"/>
-        </td>
-        <td>
-          <xsl:value-of select="Criticals"/>
-        </td>
-     </tr>
+      <xsl:if test="Errors + Criticals &gt; 0">
+        <tr>
+          <td>
+            <xsl:value-of select="Name"/>
+          </td>
+          <td>
+            <xsl:value-of select="Errors"/>
+          </td>
+          <td>
+            <xsl:value-of select="Criticals"/>
+          </td>
+        </tr>
+      </xsl:if>
     </xsl:template>
 
-    <!--
-    <xsl:template match="AppLogs" name="appTemplate">
+    <xsl:template match="AppLogs" mode="appTemplate">
         <xsl:if test="not(@processName) or generate-id() = generate-id(key('byProcessName', @processName)[1])">
      	    <div class="details">  
             <h2>
@@ -105,26 +110,26 @@
                         <xsl:choose>
                         <xsl:when test="@level = 800 or @level = 1000">
                           <tr>
-                            <td><font color="red"><xsl:value-of select="@pid"/></font></td>
-                            <td><font color="red"><xsl:value-of select="@startID"/></font></td>
-                            <td><font color="red"><xsl:value-of select="@endID"/></font></td>
-                            <td><font color="red"><xsl:value-of select="@count"/></font></td>
-                            <td><font color="red"><xsl:value-of select="@level"/></font></td>
-                            <td><font color="red"><xsl:value-of select="@type"/></font></td>
-                            <td><font color="red"><xsl:value-of select="@tid"/></font></td>
-                            <td><font color="red"><xsl:value-of select="text()"/></font></td>
+                            <td><font color="red"><xsl:value-of select="pid"/></font></td>
+                            <td><font color="red"><xsl:value-of select="startID"/></font></td>
+                            <td><font color="red"><xsl:value-of select="endID"/></font></td>
+                            <td><font color="red"><xsl:value-of select="count"/></font></td>
+                            <td><font color="red"><xsl:value-of select="level"/></font></td>
+                            <td><font color="red"><xsl:value-of select="type"/></font></td>
+                            <td><font color="red"><xsl:value-of select="tid"/></font></td>
+                            <td><font color="red"><xsl:value-of select="info"/></font></td>
                           </tr>
                         </xsl:when>
                         <xsl:otherwise>
                             <tr>
-                            <td><xsl:value-of select="@pid"/></td>
-                            <td><xsl:value-of select="@startID"/></td>
-                            <td><xsl:value-of select="@endID"/></td>
-                            <td><xsl:value-of select="@count"/></td>
-                            <td><xsl:value-of select="@level"/></td>
-                            <td><xsl:value-of select="@type"/></td>
-                            <td><xsl:value-of select="@tid"/></td>
-                            <td><xsl:value-of select="text()"/></td>
+                            <td><xsl:value-of select="pid"/></td>
+                            <td><xsl:value-of select="startID"/></td>
+                            <td><xsl:value-of select="endID"/></td>
+                            <td><xsl:value-of select="count"/></td>
+                            <td><xsl:value-of select="level"/></td>
+                            <td><xsl:value-of select="type"/></td>
+                            <td><xsl:value-of select="tid"/></td>
+                            <td><xsl:value-of select="info"/></td>
                           </tr>
                         </xsl:otherwise>
                         </xsl:choose>
@@ -142,6 +147,5 @@
             </div>
         </xsl:if>
     </xsl:template>
-    -->
 </xsl:stylesheet>
 
