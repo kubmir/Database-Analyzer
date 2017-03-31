@@ -17,12 +17,21 @@ summary {
     margin: 4px;
 }
 
+table {
+    border-collapse: separate;
+}
+
 td {
     width: auto;
     height: auto; 
     text-align: center; 
     vertical-align: middle;
     font-size: larger;
+    border: 1px solid #000
+}
+
+tr {
+    border: 1px solid #000
 }
 
 tr:hover {

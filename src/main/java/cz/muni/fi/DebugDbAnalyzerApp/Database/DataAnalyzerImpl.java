@@ -104,7 +104,7 @@ public class DataAnalyzerImpl implements DataAnalyzer {
                 i++;
             }
                         
-            addResult(results, row, count, startID, startDate);
+            addResult(results, elements.get(i), count, startID, startDate);
         }
         
         return Collections.unmodifiableList(filterGroupsAroundErrorAndCritical(results));
@@ -177,9 +177,9 @@ public class DataAnalyzerImpl implements DataAnalyzer {
         String identity;
         
         if(row.getLevelAsString().compareTo("Error") == 0) {
-            identity = row.getLog();
+            identity = row.getIdentity() + " -> " + row.getLog();
         } else {
-            identity = "Execution of " + row.getIdentity();
+            identity = row.getIdentity();
         }
             
         results.add(new GroupOfLogs(count, startID, row.getID(), row.getLevel(),
