@@ -15,13 +15,16 @@ import java.util.List;
 public class DataAnalyzerImpl implements DataAnalyzer {
         
     private final DatabaseStatsImpl databaseStatistics;
- 
+    private final int visibleAround;
+    
     /**
      * Constructor for DataAnalyzerImpl class. It creates an instance of 
      * DatabaseStatsImpl class.
+     * @param visibleAround represents count of groups around error group to be visible
      */
-    public DataAnalyzerImpl() {
+    public DataAnalyzerImpl(int visibleAround) {
         this.databaseStatistics = new DatabaseStatsImpl();
+        this.visibleAround = visibleAround;
     }
     
     @Override
@@ -114,13 +117,17 @@ public class DataAnalyzerImpl implements DataAnalyzer {
     public List<GroupOfLogs> filterGroupsAroundErrorAndCritical(List<GroupOfLogs> allGroups) {
         int currentPosition = 0;
         
+        if(this.visibleAround == -1) {
+            return allGroups;
+        }
+        
         for (GroupOfLogs group : allGroups) {
             
             if(group.getType().compareTo("Error") == 0 || group.getType().compareTo("Critical") == 0) {
                 
                 int position = currentPosition - 1;
-                //Setting visibility 50 groups before specific error/critical
-                while(position >= 0 && position >= currentPosition - 50 && 
+                //Setting visibility visibleAround groups before specific error/critical
+                while(position >= 0 && position >= currentPosition - visibleAround && 
                         allGroups.get(position).getType().compareTo("Error") != 0 && 
                         allGroups.get(position).getType().compareTo("Critical") != 0) {
                     
@@ -131,8 +138,8 @@ public class DataAnalyzerImpl implements DataAnalyzer {
                 group.setVisible(true);
                 
                 position = currentPosition + 1;
-                //Setting visibility 50 groups after specific error/critical
-                while(position < allGroups.size() && position <= currentPosition + 50 && 
+                //Setting visibility visibleAround groups after specific error/critical
+                while(position < allGroups.size() && position <= currentPosition + visibleAround && 
                         allGroups.get(position).getType().compareTo("Error") != 0 && 
                         allGroups.get(position).getType().compareTo("Critical") != 0) {
                     

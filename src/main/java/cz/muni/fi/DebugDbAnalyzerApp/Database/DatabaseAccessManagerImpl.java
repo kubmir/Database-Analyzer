@@ -2,10 +2,9 @@ package cz.muni.fi.DebugDbAnalyzerApp.Database;
 
 import cz.muni.fi.DebugDbAnalyzerApp.DataStorage.DatabaseRow;
 import cz.muni.fi.DebugDbAnalyzerApp.DataStorage.ProcessStats;
-import cz.muni.fi.DebugDbAnalyzerApp.Utils.ColumnsNames;
+import cz.muni.fi.DebugDbAnalyzerApp.Utils.*;
 import cz.muni.fi.DebugDbAnalyzerApp.XmlOutput.XmlWriterImpl;
-import cz.muni.fi.DebugDbAnalyzerApp.Utils.ServiceFailureException;
-import java.io.File;
+import cz.muni.fi.DebugDbAnalyzerApp.XmlOutput.XmlWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,9 +24,10 @@ import org.apache.commons.dbcp2.BasicDataSource;
 public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
     
     private static final Logger LOGGER = Logger.getLogger(DatabaseAccessManagerImpl.class.getName());
-    private final DataAnalyzerImpl analyzer;
-    private final XmlWriterImpl myWriter;
+    private final DataAnalyzer analyzer;
+    private final XmlWriter myWriter;
     private final String databaseURL;
+    private final FileWorker fileWorker;
     private BasicDataSource ds;
     
     /**
@@ -37,9 +37,10 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
      * @throws ServiceFailureException in case of error during initialization of XmlWriterImpl
      */
     public DatabaseAccessManagerImpl(String pathToDB, String pathToDbFolder) throws ServiceFailureException {
-        analyzer = new DataAnalyzerImpl();
+        fileWorker = new FileWorkerImpl();
+        analyzer = new DataAnalyzerImpl(fileWorker.getNumberOfLogsAroundErrors(pathToDB));
         myWriter = new XmlWriterImpl(pathToDbFolder);
-        databaseURL = this.modifySlashes(pathToDB);
+        databaseURL = fileWorker.modifySlashes(pathToDB);
         this.createDataSource();
     }
     
@@ -187,14 +188,5 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
         }
         
         return listOfElements;
-    }
-    
-    /**
-     * This method change file path to url path - WINDOWS: replace \ with /
-     * @param stringToModify represents path to .db file
-     * @return string where all \ are replaced with /
-     */
-    private String modifySlashes(String stringToModify) {
-        return stringToModify.replace(File.separator, "/");
     }
 }
