@@ -36,4 +36,9 @@ public class FileWorkerImpl implements FileWorker {
     public String modifySlashes(String stringToModify) {
         return stringToModify.replace(File.separator, "/");
     }
+    
+    @Override
+    public String getDatabaseFolder(String pathToDB) {
+        return pathToDB.substring(0, pathToDB.lastIndexOf(File.separator));
+    }
 }

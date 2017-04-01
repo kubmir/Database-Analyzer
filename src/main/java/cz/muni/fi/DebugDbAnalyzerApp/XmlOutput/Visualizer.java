@@ -1,5 +1,7 @@
 package cz.muni.fi.DebugDbAnalyzerApp.XmlOutput;
 
+import cz.muni.fi.DebugDbAnalyzerApp.Utils.FileWorker;
+import cz.muni.fi.DebugDbAnalyzerApp.Utils.FileWorkerImpl;
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.ServiceFailureException;
 import java.io.File;
 
@@ -9,13 +11,20 @@ import java.io.File;
  * @author Miroslav Kubus
  */
 public class Visualizer {
+
+    private final FileWorker fileWorker;
+    private final String pathToDbFolder;
+    
+    public Visualizer(String pathToDB) {
+        fileWorker = new FileWorkerImpl();
+        pathToDbFolder = fileWorker.getDatabaseFolder(pathToDB);
+    }
     
     /**
      * Method which transform xml output to html output using xslt template.
-     * @param pathToDbFolder path to folder of database.
      * @throws ServiceFailureException in case of error while transformation.
      */
-    public void toWeb(String pathToDbFolder) throws ServiceFailureException {
+    public void toWeb() throws ServiceFailureException {
         String pathToXML = pathToDbFolder + File.separator + "xmlOutput.xml";
         String pathToHtml = "src" + File.separator + "main" + File.separator 
                 + "resources" + File.separator + "htmlOutput.html";

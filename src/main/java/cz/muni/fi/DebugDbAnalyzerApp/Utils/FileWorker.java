@@ -20,4 +20,11 @@ public interface FileWorker {
      * @return string where all \ are replaced with /
      */
     public String modifySlashes(String stringToModify);
+    
+    /**
+     * Method which calculate database folder.
+     * @param pathToDB represents absolute path to database file
+     * @return absolute path to folder in which database is stored
+     */
+    public String getDatabaseFolder(String pathToDB);
 }
