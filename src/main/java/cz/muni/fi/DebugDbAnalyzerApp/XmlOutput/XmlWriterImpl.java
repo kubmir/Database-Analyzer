@@ -123,6 +123,16 @@ public class XmlWriterImpl implements XmlWriter {
             String elementName) throws ServiceFailureException {
         
         writeStartOfElement(elementName);
+        
+        try {
+            writer.writeAttribute("count", String.valueOf(stats.size()));
+        } catch (XMLStreamException ex) {
+            LOGGER.log(Level.SEVERE, "Error while writing element " 
+                    + elementName + "!", ex);
+            throw new ServiceFailureException("Error while writing"
+                    + " element " + elementName + "!", ex);
+        }
+        
         String el = elementName.substring(0, elementName.length() - 5); 
         for(String key : stats.keySet()) {
             writeStatistics(key, stats.get(key), el);

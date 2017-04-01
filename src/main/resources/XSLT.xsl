@@ -15,11 +15,34 @@
         </head>
         <body>
             <h1>Statistics about analyzed database</h1>
-            <xsl:call-template name="functionStats"/>
-            <xsl:call-template name="processStats"/>
-            <xsl:call-template name="logs"/>
+            <xsl:call-template name="checkDatabase"/>
         </body>
       </html>
+    </xsl:template>
+  
+    <xsl:template name="checkDatabase">
+      <xsl:choose>
+        <xsl:when test="FunctionStats/@count &gt; 0">
+          <div class="details">
+           <h2>Database summary</h2>
+           <li style="color:red;font-size:22px;">Database contains errors or criticals.</li>
+          </div>
+          <div class="details">
+            <xsl:call-template name="functionStats"/>
+          </div>
+          <div class="details">
+            <xsl:call-template name="processStats"/>
+          </div>
+          <xsl:call-template name="logs"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <div class="details">
+            <h2>Database summary</h2>
+            <li style="color:green;font-size:22px;">No errors and criticals in this database. Statistics of logs for each process are below.</li>
+          </div>
+          <xsl:call-template name="logs"/>
+        </xsl:otherwise>
+      </xsl:choose>      
     </xsl:template>
     
     <xsl:template match="Logs" name="logs">
@@ -35,7 +58,7 @@
           <th>Errors count</th>
           <th>Criticals count</th>
         </tr>
-        <xsl:apply-templates mode="specificStats" select="FunctionStats"/>
+        <xsl:apply-templates mode="specificStatsFunction" select="FunctionStats"/>
       </table>
     </xsl:template>
   
@@ -46,12 +69,32 @@
           <th>Process name</th>
           <th>Errors count</th>
           <th>Criticals count</th>
+          <th>Link</th>
         </tr>
-        <xsl:apply-templates mode="specificStats" select="ProcessStats"/>
+        <xsl:apply-templates mode="specificStatsProcess" select="ProcessStats"/>
       </table>
     </xsl:template>
     
-    <xsl:template match="Function | Process" mode="specificStats">
+    <xsl:template match="Process" mode="specificStatsProcess">
+      <xsl:if test="Errors + Criticals &gt; 0">
+        <tr>
+          <td>
+            <xsl:value-of select="Name"/>
+          </td>
+          <td>
+            <xsl:value-of select="Errors"/>
+          </td>
+          <td>
+            <xsl:value-of select="Criticals"/>
+          </td>
+          <td>
+            <a href="#{Name}">Details and logs</a>
+          </td>
+        </tr>
+      </xsl:if>
+    </xsl:template>
+  
+    <xsl:template match="Function" mode="specificStatsFunction">
       <xsl:if test="Errors + Criticals &gt; 0">
         <tr>
           <td>
@@ -69,17 +112,16 @@
   
     <xsl:template match="AppLogs" mode="appTemplate">
       <xsl:if test="not(@processName) or generate-id() = generate-id(key('byProcessName', @processName)[1])">
-        <div class="details">  
-          <h2>
-            <xsl:value-of select="@processName"/>
-          </h2>
-          <details>
+        <div class="details">
+          <a name="{@processName}"/>
+          <xsl:call-template name="writeProcessName"></xsl:call-template>
+          <details open="true">
             <summary>Process statistics and errors details</summary>
             <xsl:call-template name="appLogStats"/>
             <xsl:choose>
               <xsl:when test="sum(key('byProcessName', @processName)/@critical) + sum(key('byProcessName', @processName)/@error) > 0">
                 <div class="logs">
-                  <details>
+                  <details open="true">
                     <summary>Information about errors and criticals</summary>
                     <xsl:call-template name="createErrorsTable"/>
                   </details>
@@ -92,6 +134,25 @@
           </details>
         </div>
       </xsl:if>
+    </xsl:template>
+  
+    <xsl:template name="writeProcessName">
+      <xsl:choose>
+        <xsl:when test="@error + @critical &gt; 0">
+          <h2>
+            <font color="red">
+              <xsl:value-of select="@processName"/>
+            </font>
+          </h2>
+        </xsl:when>
+        <xsl:otherwise>
+          <h2>
+            <font color="black">
+              <xsl:value-of select="@processName"/>
+            </font>
+          </h2>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:template>
   
     <xsl:template name="appLogStats">
