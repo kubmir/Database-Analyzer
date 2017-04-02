@@ -12,17 +12,17 @@
     </Component>
     <Menu class="javax.swing.JMenuBar" name="jMenuBar">
       <SubComponents>
-        <Menu class="javax.swing.JMenu" name="visualizeJMenu">
+        <Menu class="javax.swing.JMenu" name="fileJMenu">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Visualize"/>
+            <Property name="text" type="java.lang.String" value="File"/>
           </Properties>
           <SubComponents>
-            <MenuItem class="javax.swing.JMenuItem" name="lastOutputJMenuItem">
+            <MenuItem class="javax.swing.JMenuItem" name="exitJMenuItem">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Open last output"/>
+                <Property name="text" type="java.lang.String" value="Exit"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="lastOutputJMenuItemActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="exitJMenuItemActionPerformed"/>
               </Events>
             </MenuItem>
           </SubComponents>
@@ -36,6 +36,21 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Output paths"/>
               </Properties>
+            </MenuItem>
+          </SubComponents>
+        </Menu>
+        <Menu class="javax.swing.JMenu" name="visualizeJMenu">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Visualize"/>
+          </Properties>
+          <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="lastOutputJMenuItem">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Open last output"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="lastOutputJMenuItemActionPerformed"/>
+              </Events>
             </MenuItem>
           </SubComponents>
         </Menu>
@@ -207,6 +222,9 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Analyze"/>
               </Properties>
+              <Events>
+                <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="analyzeJButtonMouseClicked"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>

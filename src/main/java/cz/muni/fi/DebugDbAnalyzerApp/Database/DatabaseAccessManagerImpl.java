@@ -130,9 +130,35 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
         }
     }
     
+    public void accessDebugLogTable(List<String> proccessNames) throws ServiceFailureException {
+        try {
+            writeStartOfFile();
 
+            for(String name : this.getAllProcessNamesFromDatabase()) {
+                accessDebugLogTableByName(name);
+            }
+            
+            writeStatsAndEndOfFile();
+        } catch(SQLException ex) {
+            throw new ServiceFailureException("Internal error: error while closing "
+                    + "ResultSet, statement or connection after accessing the database", ex);
+        }
+    }
+    
+    private void writeStartOfFile() throws ServiceFailureException {
+        myWriter.writeStartOfDocument();
+        myWriter.writeStartOfElement("Logs");
+    }
+    
+    private void writeStatsAndEndOfFile() throws ServiceFailureException {
+        myWriter.writeEndOfElement();
+        myWriter.writeDatabaseStats(analyzer.getDatabaseStatistics().getErrorsCriticalsOfFunctionStats(), "FunctionStats");
+        myWriter.writeDatabaseStats(analyzer.getDatabaseStatistics().getProcessErrorsCriticalsStats(), "ProcessStats");
+        myWriter.writeEndOfDocument();
+    }
+    
     @Override
-    public List<DatabaseRow> accessDebugLogTableByName(String name) throws ServiceFailureException, SQLException {
+    public List<DatabaseRow> accessDebugLogTableByName(String name) throws ServiceFailureException , SQLException {
         Connection con = null;
         PreparedStatement statement = null;
         ResultSet rs = null;

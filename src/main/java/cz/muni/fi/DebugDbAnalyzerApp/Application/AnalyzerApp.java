@@ -1,8 +1,11 @@
 package cz.muni.fi.DebugDbAnalyzerApp.Application;
 
+import cz.muni.fi.DebugDbAnalyzerApp.Database.DatabaseAccessManagerImpl;
+import cz.muni.fi.DebugDbAnalyzerApp.XmlOutput.Visualizer;
 import cz.muni.fi.DebugDbAnalyzerApp.XmlOutput.XSLTProcessor;
 import java.awt.BorderLayout;
 import java.io.File;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -19,7 +22,9 @@ import javax.swing.filechooser.FileFilter;
 public class AnalyzerApp extends javax.swing.JFrame {
 
     private VisualizeResultsSwingWorker visualizeSwingWorker;
+    private DatabaseWorkSwingWorker databaseSwingWorker;
     private String databaseFilePath = null;
+    private DatabaseAccessManagerImpl databaseManager;
     
     /**
      * Creates new form AnalyzerApp
@@ -40,6 +45,47 @@ public class AnalyzerApp extends javax.swing.JFrame {
             return "Database files (*.db)";
         }
         
+    }
+    
+    private class DatabaseWorkSwingWorker extends SwingWorker<Void, Void> {
+
+        private final Visualizer visualizer;
+        
+        public DatabaseWorkSwingWorker() {
+            visualizer = new Visualizer(databaseFilePath);
+        }
+        
+        @Override
+        protected Void doInBackground() throws Exception {
+            
+            if(databaseFilePath != null) {
+                databaseManager = new DatabaseAccessManagerImpl(databaseFilePath);
+                databaseManager.createIndexOnProcessName();
+                List<String> processes = databaseManager.getAllProcessNamesFromDatabase();
+
+                if(specificProcessNameJCheckBox.isSelected()) {
+
+                } else {
+                    databaseManager.accessDebugLogTable(processes);
+                }
+ 
+                databaseManager.dropProcessNameIndex();
+                visualizer.toWeb();
+            }
+            
+            return null;
+        }
+        
+        @Override
+        protected void done() {
+            try {
+                analyzeJButton.setEnabled(true);
+                databaseSwingWorker = null;
+                this.get();
+            } catch (InterruptedException | ExecutionException ex) {
+                JOptionPane.showMessageDialog(null, ex.getCause().getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }       
     }
     
     private class VisualizeResultsSwingWorker extends SwingWorker<Void, Void> {
@@ -92,10 +138,12 @@ public class AnalyzerApp extends javax.swing.JFrame {
         analyzeJButton = new javax.swing.JButton();
         transformationJPanel = new javax.swing.JPanel();
         jMenuBar = new javax.swing.JMenuBar();
-        visualizeJMenu = new javax.swing.JMenu();
-        lastOutputJMenuItem = new javax.swing.JMenuItem();
+        fileJMenu = new javax.swing.JMenu();
+        exitJMenuItem = new javax.swing.JMenuItem();
         editJMenu = new javax.swing.JMenu();
         editPathJMenuItem = new javax.swing.JMenuItem();
+        visualizeJMenu = new javax.swing.JMenu();
+        lastOutputJMenuItem = new javax.swing.JMenuItem();
         helpJMenu = new javax.swing.JMenu();
         manualJMenuItem = new javax.swing.JMenuItem();
         creditsJMenuItem = new javax.swing.JMenuItem();
@@ -129,6 +177,11 @@ public class AnalyzerApp extends javax.swing.JFrame {
         specifyNumberOfGroupsJCheckBox.setText("specify the number of groups around errors ");
 
         analyzeJButton.setText("Analyze");
+        analyzeJButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                analyzeJButtonMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout analyzerJPanelLayout = new javax.swing.GroupLayout(analyzerJPanel);
         analyzerJPanel.setLayout(analyzerJPanelLayout);
@@ -185,6 +238,25 @@ public class AnalyzerApp extends javax.swing.JFrame {
 
         getContentPane().add(applicationJTabbedPane, java.awt.BorderLayout.CENTER);
 
+        fileJMenu.setText("File");
+
+        exitJMenuItem.setText("Exit");
+        exitJMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exitJMenuItemActionPerformed(evt);
+            }
+        });
+        fileJMenu.add(exitJMenuItem);
+
+        jMenuBar.add(fileJMenu);
+
+        editJMenu.setText("Edit");
+
+        editPathJMenuItem.setText("Output paths");
+        editJMenu.add(editPathJMenuItem);
+
+        jMenuBar.add(editJMenu);
+
         visualizeJMenu.setText("Visualize");
 
         lastOutputJMenuItem.setText("Open last output");
@@ -196,13 +268,6 @@ public class AnalyzerApp extends javax.swing.JFrame {
         visualizeJMenu.add(lastOutputJMenuItem);
 
         jMenuBar.add(visualizeJMenu);
-
-        editJMenu.setText("Edit");
-
-        editPathJMenuItem.setText("Output paths");
-        editJMenu.add(editPathJMenuItem);
-
-        jMenuBar.add(editJMenu);
 
         helpJMenu.setText("Help");
 
@@ -265,6 +330,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
     private void lastOutputJMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lastOutputJMenuItemActionPerformed
         if (visualizeSwingWorker != null) {
             JOptionPane.showMessageDialog(null, "Operation is already in progress", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
         
         lastOutputJMenuItem.setEnabled(false);
@@ -283,6 +349,21 @@ public class AnalyzerApp extends javax.swing.JFrame {
             choosenFileJLabel.setText(databaseFilePath);
         }
     }//GEN-LAST:event_chooseFileJButtonMouseClicked
+
+    private void exitJMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitJMenuItemActionPerformed
+        System.exit(0);
+    }//GEN-LAST:event_exitJMenuItemActionPerformed
+
+    private void analyzeJButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_analyzeJButtonMouseClicked
+        if (databaseSwingWorker != null) {
+            JOptionPane.showMessageDialog(null, "Operation is already in progress", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        analyzeJButton.setEnabled(false);
+        databaseSwingWorker = new DatabaseWorkSwingWorker();
+        databaseSwingWorker.execute();
+    }//GEN-LAST:event_analyzeJButtonMouseClicked
 
     private void setUpJLabel(JLabel label, float fontSize, String text) {
         label.setHorizontalAlignment(JLabel.CENTER);
@@ -343,6 +424,8 @@ public class AnalyzerApp extends javax.swing.JFrame {
     private javax.swing.JFileChooser databaseJFileChooser;
     private javax.swing.JMenu editJMenu;
     private javax.swing.JMenuItem editPathJMenuItem;
+    private javax.swing.JMenuItem exitJMenuItem;
+    private javax.swing.JMenu fileJMenu;
     private javax.swing.JMenu helpJMenu;
     private javax.swing.JMenuBar jMenuBar;
     private javax.swing.JLabel justTestJLabel;
