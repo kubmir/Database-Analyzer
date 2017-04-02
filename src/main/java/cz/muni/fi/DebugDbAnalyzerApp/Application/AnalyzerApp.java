@@ -1,9 +1,16 @@
 package cz.muni.fi.DebugDbAnalyzerApp.Application;
 
+import cz.muni.fi.DebugDbAnalyzerApp.XmlOutput.XSLTProcessor;
 import java.awt.BorderLayout;
+import java.io.File;
+import java.util.concurrent.ExecutionException;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
+import javax.swing.filechooser.FileFilter;
 
 /**
  *
@@ -11,11 +18,58 @@ import javax.swing.JLabel;
  */
 public class AnalyzerApp extends javax.swing.JFrame {
 
+    private VisualizeResultsSwingWorker visualizeSwingWorker;
+    private String databaseFilePath = null;
+    
     /**
      * Creates new form AnalyzerApp
      */
     public AnalyzerApp() {
         initComponents();
+    }
+    
+    private class DatabaseFileFilter extends FileFilter {
+
+        @Override
+        public boolean accept(File file) {
+            return file.isDirectory() || file.getAbsolutePath().endsWith(".db");
+        }
+
+        @Override
+        public String getDescription() {
+            return "Database files (*.db)";
+        }
+        
+    }
+    
+    private class VisualizeResultsSwingWorker extends SwingWorker<Void, Void> {
+        
+        private final XSLTProcessor pro;
+        private final String htmlPath;
+        
+        public VisualizeResultsSwingWorker() {
+            pro = new XSLTProcessor();
+            htmlPath = "src" + File.separator + "main" + File.separator 
+                + "resources" + File.separator + "htmlOutput.html";
+        }
+        
+        @Override
+        protected Void doInBackground() throws Exception {
+            pro.openHtml(htmlPath);
+            return null;
+        }
+        
+        @Override
+        protected void done() {
+            try {
+                lastOutputJMenuItem.setEnabled(true);
+                visualizeSwingWorker = null;
+                this.get();
+            } catch (InterruptedException | ExecutionException ex) {
+                JOptionPane.showMessageDialog(null, ex.getCause().getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
     }
 
     /**
@@ -27,18 +81,121 @@ public class AnalyzerApp extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        databaseJFileChooser = new javax.swing.JFileChooser();
+        applicationJTabbedPane = new javax.swing.JTabbedPane();
+        analyzerJPanel = new javax.swing.JPanel();
+        chooseFileJButton = new javax.swing.JButton();
+        choosenFileJLabel = new javax.swing.JLabel();
+        justTestJLabel = new javax.swing.JLabel();
+        specificProcessNameJCheckBox = new javax.swing.JCheckBox();
+        specifyNumberOfGroupsJCheckBox = new javax.swing.JCheckBox();
+        analyzeJButton = new javax.swing.JButton();
+        transformationJPanel = new javax.swing.JPanel();
         jMenuBar = new javax.swing.JMenuBar();
-        jMenu1 = new javax.swing.JMenu();
+        visualizeJMenu = new javax.swing.JMenu();
+        lastOutputJMenuItem = new javax.swing.JMenuItem();
         editJMenu = new javax.swing.JMenu();
         editPathJMenuItem = new javax.swing.JMenuItem();
         helpJMenu = new javax.swing.JMenu();
         manualJMenuItem = new javax.swing.JMenuItem();
         creditsJMenuItem = new javax.swing.JMenuItem();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        databaseJFileChooser.setDialogTitle("Database file chooser");
+        databaseJFileChooser.setFileFilter(new DatabaseFileFilter());
 
-        jMenu1.setText("File");
-        jMenuBar.add(jMenu1);
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Debug database analyzer");
+
+        chooseFileJButton.setText("Choose file");
+        chooseFileJButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                chooseFileJButtonMouseClicked(evt);
+            }
+        });
+
+        choosenFileJLabel.setBackground(new java.awt.Color(255, 255, 255));
+        choosenFileJLabel.setText(System.getProperty("user.home") + System.getProperty("file.separator")+ "Desktop");
+        choosenFileJLabel.setAutoscrolls(true);
+        choosenFileJLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        choosenFileJLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        choosenFileJLabel.setEnabled(false);
+        choosenFileJLabel.setOpaque(true);
+
+        justTestJLabel.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        justTestJLabel.setText("Absolute path to chosen database file:");
+
+        specificProcessNameJCheckBox.setText("analyze specific process name");
+
+        specifyNumberOfGroupsJCheckBox.setText("specify the number of groups around errors ");
+
+        analyzeJButton.setText("Analyze");
+
+        javax.swing.GroupLayout analyzerJPanelLayout = new javax.swing.GroupLayout(analyzerJPanel);
+        analyzerJPanel.setLayout(analyzerJPanelLayout);
+        analyzerJPanelLayout.setHorizontalGroup(
+            analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(analyzerJPanelLayout.createSequentialGroup()
+                .addGap(23, 23, 23)
+                .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(justTestJLabel)
+                    .addGroup(analyzerJPanelLayout.createSequentialGroup()
+                        .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(specificProcessNameJCheckBox)
+                            .addComponent(specifyNumberOfGroupsJCheckBox)
+                            .addComponent(choosenFileJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 450, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(27, 27, 27)
+                        .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(chooseFileJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(analyzeJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(36, Short.MAX_VALUE))
+        );
+        analyzerJPanelLayout.setVerticalGroup(
+            analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(analyzerJPanelLayout.createSequentialGroup()
+                .addGap(26, 26, 26)
+                .addComponent(justTestJLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(chooseFileJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(choosenFileJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(analyzerJPanelLayout.createSequentialGroup()
+                        .addComponent(specificProcessNameJCheckBox)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(specifyNumberOfGroupsJCheckBox))
+                    .addComponent(analyzeJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(350, Short.MAX_VALUE))
+        );
+
+        applicationJTabbedPane.addTab("Analyzer", analyzerJPanel);
+
+        javax.swing.GroupLayout transformationJPanelLayout = new javax.swing.GroupLayout(transformationJPanel);
+        transformationJPanel.setLayout(transformationJPanelLayout);
+        transformationJPanelLayout.setHorizontalGroup(
+            transformationJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 654, Short.MAX_VALUE)
+        );
+        transformationJPanelLayout.setVerticalGroup(
+            transformationJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 503, Short.MAX_VALUE)
+        );
+
+        applicationJTabbedPane.addTab("Transform XML", transformationJPanel);
+
+        getContentPane().add(applicationJTabbedPane, java.awt.BorderLayout.CENTER);
+
+        visualizeJMenu.setText("Visualize");
+
+        lastOutputJMenuItem.setText("Open last output");
+        lastOutputJMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lastOutputJMenuItemActionPerformed(evt);
+            }
+        });
+        visualizeJMenu.add(lastOutputJMenuItem);
+
+        jMenuBar.add(visualizeJMenu);
 
         editJMenu.setText("Edit");
 
@@ -68,17 +225,6 @@ public class AnalyzerApp extends javax.swing.JFrame {
         jMenuBar.add(helpJMenu);
 
         setJMenuBar(jMenuBar);
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 648, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 533, Short.MAX_VALUE)
-        );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -115,6 +261,28 @@ public class AnalyzerApp extends javax.swing.JFrame {
         setUpJLabel(info, 20.0f, text);
         addComponentToFrame(creditFrame, info, 500, 300);
     }//GEN-LAST:event_creditsJMenuItemActionPerformed
+
+    private void lastOutputJMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lastOutputJMenuItemActionPerformed
+        if (visualizeSwingWorker != null) {
+            JOptionPane.showMessageDialog(null, "Operation is already in progress", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        
+        lastOutputJMenuItem.setEnabled(false);
+        visualizeSwingWorker = new VisualizeResultsSwingWorker();
+        visualizeSwingWorker.execute();
+    }//GEN-LAST:event_lastOutputJMenuItemActionPerformed
+
+    private void chooseFileJButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_chooseFileJButtonMouseClicked
+        databaseJFileChooser.setCurrentDirectory(new File(System.getProperty("user.home") 
+                + File.separator + "Desktop"));
+        int returnValue = databaseJFileChooser.showDialog(this, "Choose");
+        
+        if(returnValue == JFileChooser.APPROVE_OPTION) {
+            File file = databaseJFileChooser.getSelectedFile();
+            databaseFilePath = file.getAbsolutePath();
+            choosenFileJLabel.setText(databaseFilePath);
+        }
+    }//GEN-LAST:event_chooseFileJButtonMouseClicked
 
     private void setUpJLabel(JLabel label, float fontSize, String text) {
         label.setHorizontalAlignment(JLabel.CENTER);
@@ -166,12 +334,23 @@ public class AnalyzerApp extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton analyzeJButton;
+    private javax.swing.JPanel analyzerJPanel;
+    private javax.swing.JTabbedPane applicationJTabbedPane;
+    private javax.swing.JButton chooseFileJButton;
+    private javax.swing.JLabel choosenFileJLabel;
     private javax.swing.JMenuItem creditsJMenuItem;
+    private javax.swing.JFileChooser databaseJFileChooser;
     private javax.swing.JMenu editJMenu;
     private javax.swing.JMenuItem editPathJMenuItem;
     private javax.swing.JMenu helpJMenu;
-    private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar;
+    private javax.swing.JLabel justTestJLabel;
+    private javax.swing.JMenuItem lastOutputJMenuItem;
     private javax.swing.JMenuItem manualJMenuItem;
+    private javax.swing.JCheckBox specificProcessNameJCheckBox;
+    private javax.swing.JCheckBox specifyNumberOfGroupsJCheckBox;
+    private javax.swing.JPanel transformationJPanel;
+    private javax.swing.JMenu visualizeJMenu;
     // End of variables declaration//GEN-END:variables
 }
