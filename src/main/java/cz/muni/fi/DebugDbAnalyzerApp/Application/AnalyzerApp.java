@@ -44,7 +44,6 @@ public class AnalyzerApp extends javax.swing.JFrame {
         public String getDescription() {
             return "Database files (*.db)";
         }
-        
     }
     
     private class DatabaseWorkSwingWorker extends SwingWorker<Void, Void> {
@@ -64,13 +63,12 @@ public class AnalyzerApp extends javax.swing.JFrame {
                 List<String> processes = databaseManager.getAllProcessNamesFromDatabase();
 
                 if(specificProcessNameJCheckBox.isSelected()) {
-
+                    createSpecificProcessDialog(processes);
                 } else {
                     databaseManager.accessDebugLogTable(processes);
+                    databaseManager.dropProcessNameIndex();
+                    visualizer.toWeb();
                 }
- 
-                databaseManager.dropProcessNameIndex();
-                visualizer.toWeb();
             }
             
             return null;
@@ -86,6 +84,17 @@ public class AnalyzerApp extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(null, ex.getCause().getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }       
+    }
+    
+    private void createSpecificProcessDialog(List<String> processes) {
+        selectProcessJDialog.setSize(405, 235);
+        selectProcessJDialog.setResizable(false);
+                    
+        processes.stream().forEach((name) -> {
+            processNameJComboBox.addItem(name);
+        });
+                    
+        selectProcessJDialog.setVisible(true);
     }
     
     private class VisualizeResultsSwingWorker extends SwingWorker<Void, Void> {
@@ -115,7 +124,6 @@ public class AnalyzerApp extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(null, ex.getCause().getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
-
     }
 
     /**
@@ -127,6 +135,12 @@ public class AnalyzerApp extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        selectProcessJDialog = new javax.swing.JDialog();
+        selectProcessJPanel = new javax.swing.JPanel();
+        processNameJComboBox = new javax.swing.JComboBox<>();
+        jButton1 = new javax.swing.JButton();
+        infoSelectNameJLabel = new javax.swing.JLabel();
+        outputAllJCheckBox = new javax.swing.JCheckBox();
         databaseJFileChooser = new javax.swing.JFileChooser();
         applicationJTabbedPane = new javax.swing.JTabbedPane();
         analyzerJPanel = new javax.swing.JPanel();
@@ -147,6 +161,57 @@ public class AnalyzerApp extends javax.swing.JFrame {
         helpJMenu = new javax.swing.JMenu();
         manualJMenuItem = new javax.swing.JMenuItem();
         creditsJMenuItem = new javax.swing.JMenuItem();
+
+        selectProcessJDialog.setTitle("Select specific process to analyze");
+
+        selectProcessJPanel.setMaximumSize(null);
+        selectProcessJPanel.setMinimumSize(null);
+        selectProcessJPanel.setPreferredSize(new java.awt.Dimension(400, 200));
+
+        jButton1.setText("Analyze process");
+
+        infoSelectNameJLabel.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        infoSelectNameJLabel.setText("Select name of process which you want to analyze:");
+
+        outputAllJCheckBox.setText("write all groups associated with process to output");
+
+        javax.swing.GroupLayout selectProcessJPanelLayout = new javax.swing.GroupLayout(selectProcessJPanel);
+        selectProcessJPanel.setLayout(selectProcessJPanelLayout);
+        selectProcessJPanelLayout.setHorizontalGroup(
+            selectProcessJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(selectProcessJPanelLayout.createSequentialGroup()
+                .addGroup(selectProcessJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(selectProcessJPanelLayout.createSequentialGroup()
+                        .addGap(103, 103, 103)
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(selectProcessJPanelLayout.createSequentialGroup()
+                        .addGap(102, 102, 102)
+                        .addComponent(processNameJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(selectProcessJPanelLayout.createSequentialGroup()
+                        .addGap(24, 24, 24)
+                        .addComponent(infoSelectNameJLabel))
+                    .addGroup(selectProcessJPanelLayout.createSequentialGroup()
+                        .addGap(39, 39, 39)
+                        .addComponent(outputAllJCheckBox)))
+                .addContainerGap())
+        );
+        selectProcessJPanelLayout.setVerticalGroup(
+            selectProcessJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(selectProcessJPanelLayout.createSequentialGroup()
+                .addGap(19, 19, 19)
+                .addComponent(infoSelectNameJLabel)
+                .addGap(18, 18, 18)
+                .addComponent(processNameJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(outputAllJCheckBox)
+                .addGap(18, 18, 18)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        selectProcessJDialog.getContentPane().add(selectProcessJPanel, java.awt.BorderLayout.PAGE_START);
+
+        selectProcessJDialog.getAccessibleContext().setAccessibleDescription("");
 
         databaseJFileChooser.setDialogTitle("Database file chooser");
         databaseJFileChooser.setFileFilter(new DatabaseFileFilter());
@@ -208,9 +273,9 @@ public class AnalyzerApp extends javax.swing.JFrame {
                 .addGap(26, 26, 26)
                 .addComponent(justTestJLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(chooseFileJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(choosenFileJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(chooseFileJButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(choosenFileJLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(analyzerJPanelLayout.createSequentialGroup()
@@ -290,6 +355,8 @@ public class AnalyzerApp extends javax.swing.JFrame {
         jMenuBar.add(helpJMenu);
 
         setJMenuBar(jMenuBar);
+
+        getAccessibleContext().setAccessibleName("appFrame");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -407,10 +474,8 @@ public class AnalyzerApp extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new AnalyzerApp().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new AnalyzerApp().setVisible(true);
         });
     }
 
@@ -427,10 +492,16 @@ public class AnalyzerApp extends javax.swing.JFrame {
     private javax.swing.JMenuItem exitJMenuItem;
     private javax.swing.JMenu fileJMenu;
     private javax.swing.JMenu helpJMenu;
+    private javax.swing.JLabel infoSelectNameJLabel;
+    private javax.swing.JButton jButton1;
     private javax.swing.JMenuBar jMenuBar;
     private javax.swing.JLabel justTestJLabel;
     private javax.swing.JMenuItem lastOutputJMenuItem;
     private javax.swing.JMenuItem manualJMenuItem;
+    private javax.swing.JCheckBox outputAllJCheckBox;
+    private javax.swing.JComboBox<String> processNameJComboBox;
+    private javax.swing.JDialog selectProcessJDialog;
+    private javax.swing.JPanel selectProcessJPanel;
     private javax.swing.JCheckBox specificProcessNameJCheckBox;
     private javax.swing.JCheckBox specifyNumberOfGroupsJCheckBox;
     private javax.swing.JPanel transformationJPanel;
