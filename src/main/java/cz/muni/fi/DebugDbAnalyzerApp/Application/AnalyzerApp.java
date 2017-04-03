@@ -5,8 +5,11 @@ import cz.muni.fi.DebugDbAnalyzerApp.XmlOutput.Visualizer;
 import cz.muni.fi.DebugDbAnalyzerApp.XmlOutput.XSLTProcessor;
 import java.awt.BorderLayout;
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -21,10 +24,11 @@ import javax.swing.filechooser.FileFilter;
  */
 public class AnalyzerApp extends javax.swing.JFrame {
 
-    private VisualizeResultsSwingWorker visualizeSwingWorker;
-    private DatabaseWorkSwingWorker databaseSwingWorker;
+    private VisualizeResultsSwingWorker visualizeSwingWorker = null;
+    private DatabaseWorkSwingWorker databaseSwingWorker = null;
+    private SpecificProcessSwingWorker specificProcessSwingWorker = null;
     private String databaseFilePath = null;
-    private DatabaseAccessManagerImpl databaseManager;
+    private DatabaseAccessManagerImpl databaseManager = null;
     
     /**
      * Creates new form AnalyzerApp
@@ -46,37 +50,67 @@ public class AnalyzerApp extends javax.swing.JFrame {
         }
     }
     
-    private class DatabaseWorkSwingWorker extends SwingWorker<Void, Void> {
-
+    private class SpecificProcessSwingWorker extends SwingWorker<Void, Void> {
         private final Visualizer visualizer;
+        private final String selectedProcess;
         
-        public DatabaseWorkSwingWorker() {
+        public SpecificProcessSwingWorker(String selectedProcess) {
             visualizer = new Visualizer(databaseFilePath);
+            this.selectedProcess = selectedProcess; 
         }
         
         @Override
         protected Void doInBackground() throws Exception {
-            
-            if(databaseFilePath != null) {
-                databaseManager = new DatabaseAccessManagerImpl(databaseFilePath);
-                databaseManager.createIndexOnProcessName();
-                List<String> processes = databaseManager.getAllProcessNamesFromDatabase();
-
-                if(specificProcessNameJCheckBox.isSelected()) {
-                    createSpecificProcessDialog(processes);
-                } else {
-                    databaseManager.accessDebugLogTable(processes);
-                    databaseManager.dropProcessNameIndex();
-                    visualizer.toWeb();
-                }
-            }
-            
+            databaseManager.accessDebugLogTable(Collections.singletonList(selectedProcess));
+            databaseManager.dropProcessNameIndex();
+            visualizer.toWeb();
             return null;
         }
         
         @Override
         protected void done() {
             try {
+                specificProcessJButton.setEnabled(true);
+                specificProcessSwingWorker = null;
+                this.get();
+            } catch (InterruptedException | ExecutionException ex) {
+                JOptionPane.showMessageDialog(null, ex.getCause().getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }  
+    }
+    
+    private class DatabaseWorkSwingWorker extends SwingWorker<List<String>, Void> {
+
+        private final Visualizer visualizer;
+        private final boolean specificProcess;
+        
+        public DatabaseWorkSwingWorker(boolean specificProcess) {
+            visualizer = new Visualizer(databaseFilePath);
+            this.specificProcess = specificProcess;
+        }
+        
+        @Override
+        protected List<String> doInBackground() throws Exception {
+            List<String> processes = null;
+            
+            if(databaseFilePath != null) {
+                databaseManager = new DatabaseAccessManagerImpl(databaseFilePath);
+                databaseManager.createIndexOnProcessName();
+                processes = databaseManager.getAllProcessNamesFromDatabase();
+
+                if(!specificProcess) {
+                    databaseManager.accessDebugLogTable(processes);
+                    databaseManager.dropProcessNameIndex();
+                    visualizer.toWeb();
+                } 
+            }
+            
+            return processes;
+        }
+        
+        @Override
+        protected void done() {
+            try {        
                 analyzeJButton.setEnabled(true);
                 databaseSwingWorker = null;
                 this.get();
@@ -138,7 +172,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
         selectProcessJDialog = new javax.swing.JDialog();
         selectProcessJPanel = new javax.swing.JPanel();
         processNameJComboBox = new javax.swing.JComboBox<>();
-        jButton1 = new javax.swing.JButton();
+        specificProcessJButton = new javax.swing.JButton();
         infoSelectNameJLabel = new javax.swing.JLabel();
         outputAllJCheckBox = new javax.swing.JCheckBox();
         databaseJFileChooser = new javax.swing.JFileChooser();
@@ -165,10 +199,14 @@ public class AnalyzerApp extends javax.swing.JFrame {
         selectProcessJDialog.setTitle("Select specific process to analyze");
 
         selectProcessJPanel.setMaximumSize(null);
-        selectProcessJPanel.setMinimumSize(null);
         selectProcessJPanel.setPreferredSize(new java.awt.Dimension(400, 200));
 
-        jButton1.setText("Analyze process");
+        specificProcessJButton.setText("Analyze process");
+        specificProcessJButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                specificProcessJButtonMouseClicked(evt);
+            }
+        });
 
         infoSelectNameJLabel.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         infoSelectNameJLabel.setText("Select name of process which you want to analyze:");
@@ -183,7 +221,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
                 .addGroup(selectProcessJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(selectProcessJPanelLayout.createSequentialGroup()
                         .addGap(103, 103, 103)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(specificProcessJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(selectProcessJPanelLayout.createSequentialGroup()
                         .addGap(102, 102, 102)
                         .addComponent(processNameJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -205,7 +243,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(outputAllJCheckBox)
                 .addGap(18, 18, 18)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(specificProcessJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -396,7 +434,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
 
     private void lastOutputJMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lastOutputJMenuItemActionPerformed
         if (visualizeSwingWorker != null) {
-            JOptionPane.showMessageDialog(null, "Operation is already in progress", "Error", JOptionPane.ERROR_MESSAGE);
+            printOperationInProgress();
             return;
         }
         
@@ -423,15 +461,39 @@ public class AnalyzerApp extends javax.swing.JFrame {
 
     private void analyzeJButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_analyzeJButtonMouseClicked
         if (databaseSwingWorker != null) {
-            JOptionPane.showMessageDialog(null, "Operation is already in progress", "Error", JOptionPane.ERROR_MESSAGE);
+            printOperationInProgress();
             return;
         }
         
+        boolean specificProcess = specificProcessNameJCheckBox.isSelected();
         analyzeJButton.setEnabled(false);
-        databaseSwingWorker = new DatabaseWorkSwingWorker();
-        databaseSwingWorker.execute();
+        databaseSwingWorker = new DatabaseWorkSwingWorker(specificProcess);
+        databaseSwingWorker.execute();  
+        
+        try {
+            if(specificProcess)
+                createSpecificProcessDialog(databaseSwingWorker.get());
+        } catch (InterruptedException | ExecutionException ex) {
+            Logger.getLogger(AnalyzerApp.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_analyzeJButtonMouseClicked
 
+    private void specificProcessJButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_specificProcessJButtonMouseClicked
+        if (specificProcessSwingWorker != null) {
+            printOperationInProgress();
+            return;
+        }
+        
+        String selectedProcess = (String) processNameJComboBox.getSelectedItem();
+        selectProcessJDialog.dispose();
+        specificProcessSwingWorker = new SpecificProcessSwingWorker(selectedProcess);
+        specificProcessSwingWorker.execute();
+    }//GEN-LAST:event_specificProcessJButtonMouseClicked
+
+    private void printOperationInProgress() {
+        JOptionPane.showMessageDialog(null, "Operation is already in progress", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+    
     private void setUpJLabel(JLabel label, float fontSize, String text) {
         label.setHorizontalAlignment(JLabel.CENTER);
         label.setText("<html><div style='text-align: center;'>" + text + "</div></html>");
@@ -493,7 +555,6 @@ public class AnalyzerApp extends javax.swing.JFrame {
     private javax.swing.JMenu fileJMenu;
     private javax.swing.JMenu helpJMenu;
     private javax.swing.JLabel infoSelectNameJLabel;
-    private javax.swing.JButton jButton1;
     private javax.swing.JMenuBar jMenuBar;
     private javax.swing.JLabel justTestJLabel;
     private javax.swing.JMenuItem lastOutputJMenuItem;
@@ -502,6 +563,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> processNameJComboBox;
     private javax.swing.JDialog selectProcessJDialog;
     private javax.swing.JPanel selectProcessJPanel;
+    private javax.swing.JButton specificProcessJButton;
     private javax.swing.JCheckBox specificProcessNameJCheckBox;
     private javax.swing.JCheckBox specifyNumberOfGroupsJCheckBox;
     private javax.swing.JPanel transformationJPanel;
