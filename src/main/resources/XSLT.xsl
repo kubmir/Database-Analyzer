@@ -38,7 +38,7 @@
         <xsl:otherwise>
           <div class="details">
             <h2>Database summary</h2>
-            <li style="color:green;font-size:22px;">No errors and criticals in this database. Statistics of logs for each process are below.</li>
+            <li style="color:green;font-size:22px;">No errors and criticals in database (in selected process). Statistics of logs for each process are below.</li>
           </div>
           <xsl:call-template name="logs"/>
         </xsl:otherwise>

@@ -490,7 +490,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
     }//GEN-LAST:event_specificProcessJButtonMouseClicked
 
     private void printOperationInProgress() {
-        JOptionPane.showMessageDialog(null, "Operation is already in progress", "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, "Operation is already in progress", "Warning", JOptionPane.WARNING_MESSAGE);
     }
     
     private void printException(Throwable ex) {
