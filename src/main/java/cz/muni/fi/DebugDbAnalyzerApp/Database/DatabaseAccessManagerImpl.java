@@ -130,11 +130,11 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
         }
     }
     
-    public void accessDebugLogTable(List<String> proccessNames) throws ServiceFailureException {
+    public void accessDebugLogTable(List<String> processNames) throws ServiceFailureException {
         try {
             writeStartOfFile();
 
-            for(String name : this.getAllProcessNamesFromDatabase()) {
+            for(String name : processNames) {
                 accessDebugLogTableByName(name);
             }
             

@@ -8,8 +8,6 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -74,7 +72,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
                 specificProcessSwingWorker = null;
                 this.get();
             } catch (InterruptedException | ExecutionException ex) {
-                JOptionPane.showMessageDialog(null, ex.getCause().getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                printException(ex);
             }
         }  
     }
@@ -115,7 +113,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
                 databaseSwingWorker = null;
                 this.get();
             } catch (InterruptedException | ExecutionException ex) {
-                JOptionPane.showMessageDialog(null, ex.getCause().getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                printException(ex);
             }
         }       
     }
@@ -155,7 +153,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
                 visualizeSwingWorker = null;
                 this.get();
             } catch (InterruptedException | ExecutionException ex) {
-                JOptionPane.showMessageDialog(null, ex.getCause().getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                printException(ex);
             }
         }
     }
@@ -471,10 +469,11 @@ public class AnalyzerApp extends javax.swing.JFrame {
         databaseSwingWorker.execute();  
         
         try {
-            if(specificProcess)
+            if(specificProcess) {
                 createSpecificProcessDialog(databaseSwingWorker.get());
+            }
         } catch (InterruptedException | ExecutionException ex) {
-            Logger.getLogger(AnalyzerApp.class.getName()).log(Level.SEVERE, null, ex);
+            printException(ex);
         }
     }//GEN-LAST:event_analyzeJButtonMouseClicked
 
@@ -492,6 +491,10 @@ public class AnalyzerApp extends javax.swing.JFrame {
 
     private void printOperationInProgress() {
         JOptionPane.showMessageDialog(null, "Operation is already in progress", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+    
+    private void printException(Throwable ex) {
+        JOptionPane.showMessageDialog(null, ex.getCause().getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
     
     private void setUpJLabel(JLabel label, float fontSize, String text) {
