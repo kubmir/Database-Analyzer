@@ -12,12 +12,26 @@ import java.io.File;
  */
 public class Visualizer {
 
+    private static final String PATH_TO_XSLT = "src" + File.separator 
+            + "main" + File.separator + "resources" + File.separator + "XSLT.xsl";
+    
+    
     private final FileWorker fileWorker;
-    private final String pathToDbFolder;
+    private String pathToXML;
+    private String pathToHtml;
+ 
     
     public Visualizer(String pathToDB) {
         fileWorker = new FileWorkerImpl();
-        pathToDbFolder = fileWorker.getDatabaseFolder(pathToDB);
+        pathToHtml = "src" + File.separator + "main" + File.separator 
+                + "resources" + File.separator + "htmlOutput.html";
+        
+        if(pathToDB != null) {
+            pathToXML = fileWorker.getDatabaseFolder(pathToDB) 
+                + File.separator + "xmlOutput.xml";
+        } else {
+            pathToXML = null;
+        }
     }
     
     /**
@@ -25,15 +39,18 @@ public class Visualizer {
      * @throws ServiceFailureException in case of error while transformation.
      */
     public void toWeb() throws ServiceFailureException {
-        String pathToXML = pathToDbFolder + File.separator + "xmlOutput.xml";
-        String pathToHtml = "src" + File.separator + "main" + File.separator 
-                + "resources" + File.separator + "htmlOutput.html";
-        
-        String pathToXSLT = "src" + File.separator + "main" + File.separator 
-                + "resources" + File.separator + "XSLT.xsl";
+        if(pathToXML != null) {
+            XSLTProcessor pro = new XSLTProcessor();
+            pro.transformToHtml(PATH_TO_XSLT, pathToXML, pathToHtml);
+            pro.openHtml(pathToHtml);
+        }
+    }
+    
+    public void setPathToXML(String pathToXML) {
+        this.pathToXML = pathToXML;
+    }
 
-        XSLTProcessor pro = new XSLTProcessor();
-        pro.transformToHtml(pathToXSLT, pathToXML, pathToHtml);
-        pro.openHtml(pathToHtml);
+    public void setPathToHtml(String pathToHtml) {
+        this.pathToHtml = pathToHtml;
     }
 }

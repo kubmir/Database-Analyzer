@@ -15,6 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -25,6 +26,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
     private VisualizeResultsSwingWorker visualizeSwingWorker = null;
     private DatabaseWorkSwingWorker databaseSwingWorker = null;
     private SpecificProcessSwingWorker specificProcessSwingWorker = null;
+    private XmlTransformationSwingWorker xmlTransformSwingWorker = null;
     private String databaseFilePath = null;
     private DatabaseAccessManagerImpl databaseManager = null;
     
@@ -46,6 +48,36 @@ public class AnalyzerApp extends javax.swing.JFrame {
         public String getDescription() {
             return "Database files (*.db)";
         }
+    }
+    
+    private class XmlTransformationSwingWorker extends SwingWorker<Void, Void> {
+
+        private final Visualizer visualizer;
+        private final String xmlPath;
+        
+        
+        public XmlTransformationSwingWorker(String xmlPath) {
+            this.visualizer = new Visualizer(null);
+            visualizer.setPathToXML(xmlPath);
+            this.xmlPath = xmlPath;
+        }
+        
+        @Override
+        protected Void doInBackground() throws Exception {
+            visualizer.toWeb();
+            return null;
+        }
+        
+        @Override
+        protected void done() {
+            try {
+                visualizeJButton.setEnabled(true);
+                xmlTransformSwingWorker = null;
+                this.get();
+            } catch (InterruptedException | ExecutionException ex) {
+                printException(ex);
+            }
+        }  
     }
     
     private class SpecificProcessSwingWorker extends SwingWorker<Void, Void> {
@@ -174,15 +206,20 @@ public class AnalyzerApp extends javax.swing.JFrame {
         infoSelectNameJLabel = new javax.swing.JLabel();
         outputAllJCheckBox = new javax.swing.JCheckBox();
         databaseJFileChooser = new javax.swing.JFileChooser();
+        xmlJFileChooser = new javax.swing.JFileChooser();
         applicationJTabbedPane = new javax.swing.JTabbedPane();
         analyzerJPanel = new javax.swing.JPanel();
         chooseFileJButton = new javax.swing.JButton();
-        choosenFileJLabel = new javax.swing.JLabel();
-        justTestJLabel = new javax.swing.JLabel();
+        choosenDatabaseFileJLabel = new javax.swing.JLabel();
+        justInfoJLabel = new javax.swing.JLabel();
         specificProcessNameJCheckBox = new javax.swing.JCheckBox();
         specifyNumberOfGroupsJCheckBox = new javax.swing.JCheckBox();
         analyzeJButton = new javax.swing.JButton();
         transformationJPanel = new javax.swing.JPanel();
+        choosenXMLFileJLabel = new javax.swing.JLabel();
+        chooseXMLFileJButton = new javax.swing.JButton();
+        visualizeJButton = new javax.swing.JButton();
+        justInfoJLabel1 = new javax.swing.JLabel();
         jMenuBar = new javax.swing.JMenuBar();
         fileJMenu = new javax.swing.JMenu();
         exitJMenuItem = new javax.swing.JMenuItem();
@@ -262,16 +299,16 @@ public class AnalyzerApp extends javax.swing.JFrame {
             }
         });
 
-        choosenFileJLabel.setBackground(new java.awt.Color(255, 255, 255));
-        choosenFileJLabel.setText(System.getProperty("user.home") + System.getProperty("file.separator")+ "Desktop");
-        choosenFileJLabel.setAutoscrolls(true);
-        choosenFileJLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        choosenFileJLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        choosenFileJLabel.setEnabled(false);
-        choosenFileJLabel.setOpaque(true);
+        choosenDatabaseFileJLabel.setBackground(new java.awt.Color(255, 255, 255));
+        choosenDatabaseFileJLabel.setText(System.getProperty("user.home") + System.getProperty("file.separator")+ "Desktop");
+        choosenDatabaseFileJLabel.setAutoscrolls(true);
+        choosenDatabaseFileJLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        choosenDatabaseFileJLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        choosenDatabaseFileJLabel.setEnabled(false);
+        choosenDatabaseFileJLabel.setOpaque(true);
 
-        justTestJLabel.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        justTestJLabel.setText("Absolute path to chosen database file:");
+        justInfoJLabel.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        justInfoJLabel.setText("Absolute path to chosen database file:");
 
         specificProcessNameJCheckBox.setText("analyze specific process name");
 
@@ -291,12 +328,12 @@ public class AnalyzerApp extends javax.swing.JFrame {
             .addGroup(analyzerJPanelLayout.createSequentialGroup()
                 .addGap(23, 23, 23)
                 .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(justTestJLabel)
+                    .addComponent(justInfoJLabel)
                     .addGroup(analyzerJPanelLayout.createSequentialGroup()
                         .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(specificProcessNameJCheckBox)
                             .addComponent(specifyNumberOfGroupsJCheckBox)
-                            .addComponent(choosenFileJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 450, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(choosenDatabaseFileJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 450, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(27, 27, 27)
                         .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(chooseFileJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -307,11 +344,11 @@ public class AnalyzerApp extends javax.swing.JFrame {
             analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(analyzerJPanelLayout.createSequentialGroup()
                 .addGap(26, 26, 26)
-                .addComponent(justTestJLabel)
+                .addComponent(justInfoJLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(chooseFileJButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(choosenFileJLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(choosenDatabaseFileJLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(analyzerJPanelLayout.createSequentialGroup()
@@ -324,15 +361,59 @@ public class AnalyzerApp extends javax.swing.JFrame {
 
         applicationJTabbedPane.addTab("Analyzer", analyzerJPanel);
 
+        choosenXMLFileJLabel.setBackground(new java.awt.Color(255, 255, 255));
+        choosenXMLFileJLabel.setText(System.getProperty("user.home") + System.getProperty("file.separator")+ "Desktop");
+        choosenXMLFileJLabel.setAutoscrolls(true);
+        choosenXMLFileJLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        choosenXMLFileJLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        choosenXMLFileJLabel.setEnabled(false);
+        choosenXMLFileJLabel.setOpaque(true);
+
+        chooseXMLFileJButton.setText("Choose file");
+        chooseXMLFileJButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                chooseXMLFileJButtonMouseClicked(evt);
+            }
+        });
+
+        visualizeJButton.setText("Visualize");
+        visualizeJButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                visualizeJButtonMouseClicked(evt);
+            }
+        });
+
+        justInfoJLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        justInfoJLabel1.setText("Absolute path to XML file for visualization:");
+
         javax.swing.GroupLayout transformationJPanelLayout = new javax.swing.GroupLayout(transformationJPanel);
         transformationJPanel.setLayout(transformationJPanelLayout);
         transformationJPanelLayout.setHorizontalGroup(
             transformationJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 654, Short.MAX_VALUE)
+            .addGroup(transformationJPanelLayout.createSequentialGroup()
+                .addGap(23, 23, 23)
+                .addGroup(transformationJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(justInfoJLabel1)
+                    .addGroup(transformationJPanelLayout.createSequentialGroup()
+                        .addComponent(choosenXMLFileJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 450, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(27, 27, 27)
+                        .addGroup(transformationJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(visualizeJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(chooseXMLFileJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(36, Short.MAX_VALUE))
         );
         transformationJPanelLayout.setVerticalGroup(
             transformationJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 503, Short.MAX_VALUE)
+            .addGroup(transformationJPanelLayout.createSequentialGroup()
+                .addGap(26, 26, 26)
+                .addComponent(justInfoJLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(transformationJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(choosenXMLFileJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(chooseXMLFileJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(visualizeJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(365, Short.MAX_VALUE))
         );
 
         applicationJTabbedPane.addTab("Transform XML", transformationJPanel);
@@ -449,7 +530,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
         if(returnValue == JFileChooser.APPROVE_OPTION) {
             File file = databaseJFileChooser.getSelectedFile();
             databaseFilePath = file.getAbsolutePath();
-            choosenFileJLabel.setText(databaseFilePath);
+            choosenDatabaseFileJLabel.setText(databaseFilePath);
         }
     }//GEN-LAST:event_chooseFileJButtonMouseClicked
 
@@ -488,6 +569,32 @@ public class AnalyzerApp extends javax.swing.JFrame {
         specificProcessSwingWorker = new SpecificProcessSwingWorker(selectedProcess);
         specificProcessSwingWorker.execute();
     }//GEN-LAST:event_specificProcessJButtonMouseClicked
+
+    private void chooseXMLFileJButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_chooseXMLFileJButtonMouseClicked
+        xmlJFileChooser.setCurrentDirectory(new File(System.getProperty("user.home") 
+                + File.separator + "Desktop"));
+        
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("XML files (.xml)", "xml");
+        xmlJFileChooser.setFileFilter(filter);
+        int returnValue = xmlJFileChooser.showDialog(this, "Choose");
+        
+        if(returnValue == JFileChooser.APPROVE_OPTION) {
+            File file = xmlJFileChooser.getSelectedFile();
+            String xmlPath = file.getAbsolutePath();
+            choosenXMLFileJLabel.setText(xmlPath);
+        }
+    }//GEN-LAST:event_chooseXMLFileJButtonMouseClicked
+
+    private void visualizeJButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_visualizeJButtonMouseClicked
+        if (xmlTransformSwingWorker != null) {
+            printOperationInProgress();
+            return;
+        }
+        
+        visualizeJButton.setEnabled(false);
+        xmlTransformSwingWorker = new XmlTransformationSwingWorker(choosenXMLFileJLabel.getText());
+        xmlTransformSwingWorker.execute();
+    }//GEN-LAST:event_visualizeJButtonMouseClicked
 
     private void printOperationInProgress() {
         JOptionPane.showMessageDialog(null, "Operation is already in progress", "Warning", JOptionPane.WARNING_MESSAGE);
@@ -549,7 +656,9 @@ public class AnalyzerApp extends javax.swing.JFrame {
     private javax.swing.JPanel analyzerJPanel;
     private javax.swing.JTabbedPane applicationJTabbedPane;
     private javax.swing.JButton chooseFileJButton;
-    private javax.swing.JLabel choosenFileJLabel;
+    private javax.swing.JButton chooseXMLFileJButton;
+    private javax.swing.JLabel choosenDatabaseFileJLabel;
+    private javax.swing.JLabel choosenXMLFileJLabel;
     private javax.swing.JMenuItem creditsJMenuItem;
     private javax.swing.JFileChooser databaseJFileChooser;
     private javax.swing.JMenu editJMenu;
@@ -559,7 +668,8 @@ public class AnalyzerApp extends javax.swing.JFrame {
     private javax.swing.JMenu helpJMenu;
     private javax.swing.JLabel infoSelectNameJLabel;
     private javax.swing.JMenuBar jMenuBar;
-    private javax.swing.JLabel justTestJLabel;
+    private javax.swing.JLabel justInfoJLabel;
+    private javax.swing.JLabel justInfoJLabel1;
     private javax.swing.JMenuItem lastOutputJMenuItem;
     private javax.swing.JMenuItem manualJMenuItem;
     private javax.swing.JCheckBox outputAllJCheckBox;
@@ -570,6 +680,8 @@ public class AnalyzerApp extends javax.swing.JFrame {
     private javax.swing.JCheckBox specificProcessNameJCheckBox;
     private javax.swing.JCheckBox specifyNumberOfGroupsJCheckBox;
     private javax.swing.JPanel transformationJPanel;
+    private javax.swing.JButton visualizeJButton;
     private javax.swing.JMenu visualizeJMenu;
+    private javax.swing.JFileChooser xmlJFileChooser;
     // End of variables declaration//GEN-END:variables
 }
