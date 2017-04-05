@@ -15,7 +15,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -26,15 +25,17 @@ public class AnalyzerApp extends javax.swing.JFrame {
     private VisualizeResultsSwingWorker visualizeSwingWorker = null;
     private DatabaseWorkSwingWorker databaseSwingWorker = null;
     private SpecificProcessSwingWorker specificProcessSwingWorker = null;
-    private XmlTransformationSwingWorker xmlTransformSwingWorker = null;
+    private OpenXmlFileSwingWorker openXmlSwingWorker = null;
     private String databaseFilePath = null;
     private DatabaseAccessManagerImpl databaseManager = null;
+    private Visualizer visualizer = null;
     
     /**
      * Creates new form AnalyzerApp
      */
     public AnalyzerApp() {
         initComponents();
+        visualizer = new Visualizer();
     }
     
     private class DatabaseFileFilter extends FileFilter {
@@ -50,42 +51,11 @@ public class AnalyzerApp extends javax.swing.JFrame {
         }
     }
     
-    private class XmlTransformationSwingWorker extends SwingWorker<Void, Void> {
-
-        private final Visualizer visualizer;
-        private final String xmlPath;
-        
-        
-        public XmlTransformationSwingWorker(String xmlPath) {
-            this.visualizer = new Visualizer(null);
-            visualizer.setPathToXML(xmlPath);
-            this.xmlPath = xmlPath;
-        }
-        
-        @Override
-        protected Void doInBackground() throws Exception {
-            visualizer.toWeb();
-            return null;
-        }
-        
-        @Override
-        protected void done() {
-            try {
-                visualizeJButton.setEnabled(true);
-                xmlTransformSwingWorker = null;
-                this.get();
-            } catch (InterruptedException | ExecutionException ex) {
-                printException(ex);
-            }
-        }  
-    }
-    
     private class SpecificProcessSwingWorker extends SwingWorker<Void, Void> {
-        private final Visualizer visualizer;
+
         private final String selectedProcess;
         
         public SpecificProcessSwingWorker(String selectedProcess) {
-            visualizer = new Visualizer(databaseFilePath);
             this.selectedProcess = selectedProcess; 
         }
         
@@ -111,11 +81,9 @@ public class AnalyzerApp extends javax.swing.JFrame {
     
     private class DatabaseWorkSwingWorker extends SwingWorker<List<String>, Void> {
 
-        private final Visualizer visualizer;
         private final boolean specificProcess;
         
         public DatabaseWorkSwingWorker(boolean specificProcess) {
-            visualizer = new Visualizer(databaseFilePath);
             this.specificProcess = specificProcess;
         }
         
@@ -161,6 +129,32 @@ public class AnalyzerApp extends javax.swing.JFrame {
         selectProcessJDialog.setVisible(true);
     }
     
+    private class OpenXmlFileSwingWorker extends SwingWorker<Void, Void> {
+        private final XSLTProcessor pro;
+        
+        public OpenXmlFileSwingWorker() {
+            pro = new XSLTProcessor();
+        }
+        
+        @Override
+        protected Void doInBackground() throws Exception {
+            pro.openFile(Visualizer.getPATH_TO_XML());
+            return null;
+        }
+        
+        @Override
+        protected void done() {
+            try {
+                lastXmlOutputJMenuItem.setEnabled(true);
+                openXmlSwingWorker = null;
+                this.get();
+            } catch (InterruptedException | ExecutionException ex) {
+                printException(ex);
+            }
+        }
+        
+    }
+    
     private class VisualizeResultsSwingWorker extends SwingWorker<Void, Void> {
         
         private final XSLTProcessor pro;
@@ -174,14 +168,14 @@ public class AnalyzerApp extends javax.swing.JFrame {
         
         @Override
         protected Void doInBackground() throws Exception {
-            pro.openHtml(htmlPath);
+            pro.openFile(htmlPath);
             return null;
         }
         
         @Override
         protected void done() {
             try {
-                lastOutputJMenuItem.setEnabled(true);
+                lastHtmlOutputJMenuItem.setEnabled(true);
                 visualizeSwingWorker = null;
                 this.get();
             } catch (InterruptedException | ExecutionException ex) {
@@ -215,18 +209,12 @@ public class AnalyzerApp extends javax.swing.JFrame {
         specificProcessNameJCheckBox = new javax.swing.JCheckBox();
         specifyNumberOfGroupsJCheckBox = new javax.swing.JCheckBox();
         analyzeJButton = new javax.swing.JButton();
-        transformationJPanel = new javax.swing.JPanel();
-        choosenXMLFileJLabel = new javax.swing.JLabel();
-        chooseXMLFileJButton = new javax.swing.JButton();
-        visualizeJButton = new javax.swing.JButton();
-        justInfoJLabel1 = new javax.swing.JLabel();
         jMenuBar = new javax.swing.JMenuBar();
         fileJMenu = new javax.swing.JMenu();
         exitJMenuItem = new javax.swing.JMenuItem();
-        editJMenu = new javax.swing.JMenu();
-        editPathJMenuItem = new javax.swing.JMenuItem();
         visualizeJMenu = new javax.swing.JMenu();
-        lastOutputJMenuItem = new javax.swing.JMenuItem();
+        lastHtmlOutputJMenuItem = new javax.swing.JMenuItem();
+        lastXmlOutputJMenuItem = new javax.swing.JMenuItem();
         helpJMenu = new javax.swing.JMenu();
         manualJMenuItem = new javax.swing.JMenuItem();
         creditsJMenuItem = new javax.swing.JMenuItem();
@@ -361,64 +349,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
 
         applicationJTabbedPane.addTab("Analyzer", analyzerJPanel);
 
-        choosenXMLFileJLabel.setBackground(new java.awt.Color(255, 255, 255));
-        choosenXMLFileJLabel.setText(System.getProperty("user.home") + System.getProperty("file.separator")+ "Desktop");
-        choosenXMLFileJLabel.setAutoscrolls(true);
-        choosenXMLFileJLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        choosenXMLFileJLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        choosenXMLFileJLabel.setEnabled(false);
-        choosenXMLFileJLabel.setOpaque(true);
-
-        chooseXMLFileJButton.setText("Choose file");
-        chooseXMLFileJButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                chooseXMLFileJButtonMouseClicked(evt);
-            }
-        });
-
-        visualizeJButton.setText("Visualize");
-        visualizeJButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                visualizeJButtonMouseClicked(evt);
-            }
-        });
-
-        justInfoJLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        justInfoJLabel1.setText("Absolute path to XML file for visualization:");
-
-        javax.swing.GroupLayout transformationJPanelLayout = new javax.swing.GroupLayout(transformationJPanel);
-        transformationJPanel.setLayout(transformationJPanelLayout);
-        transformationJPanelLayout.setHorizontalGroup(
-            transformationJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(transformationJPanelLayout.createSequentialGroup()
-                .addGap(23, 23, 23)
-                .addGroup(transformationJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(justInfoJLabel1)
-                    .addGroup(transformationJPanelLayout.createSequentialGroup()
-                        .addComponent(choosenXMLFileJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 450, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(27, 27, 27)
-                        .addGroup(transformationJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(visualizeJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(chooseXMLFileJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(36, Short.MAX_VALUE))
-        );
-        transformationJPanelLayout.setVerticalGroup(
-            transformationJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(transformationJPanelLayout.createSequentialGroup()
-                .addGap(26, 26, 26)
-                .addComponent(justInfoJLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(transformationJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(choosenXMLFileJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(chooseXMLFileJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addComponent(visualizeJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(365, Short.MAX_VALUE))
-        );
-
-        applicationJTabbedPane.addTab("Transform XML", transformationJPanel);
-
-        getContentPane().add(applicationJTabbedPane, java.awt.BorderLayout.CENTER);
+        getContentPane().add(applicationJTabbedPane, java.awt.BorderLayout.PAGE_START);
 
         fileJMenu.setText("File");
 
@@ -432,22 +363,23 @@ public class AnalyzerApp extends javax.swing.JFrame {
 
         jMenuBar.add(fileJMenu);
 
-        editJMenu.setText("Edit");
+        visualizeJMenu.setText("Open");
 
-        editPathJMenuItem.setText("Output paths");
-        editJMenu.add(editPathJMenuItem);
-
-        jMenuBar.add(editJMenu);
-
-        visualizeJMenu.setText("Visualize");
-
-        lastOutputJMenuItem.setText("Open last output");
-        lastOutputJMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        lastHtmlOutputJMenuItem.setText("Last html output");
+        lastHtmlOutputJMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                lastOutputJMenuItemActionPerformed(evt);
+                lastHtmlOutputJMenuItemActionPerformed(evt);
             }
         });
-        visualizeJMenu.add(lastOutputJMenuItem);
+        visualizeJMenu.add(lastHtmlOutputJMenuItem);
+
+        lastXmlOutputJMenuItem.setText("Last xml output");
+        lastXmlOutputJMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lastXmlOutputJMenuItemActionPerformed(evt);
+            }
+        });
+        visualizeJMenu.add(lastXmlOutputJMenuItem);
 
         jMenuBar.add(visualizeJMenu);
 
@@ -511,52 +443,20 @@ public class AnalyzerApp extends javax.swing.JFrame {
         addComponentToFrame(creditFrame, info, 500, 300);
     }//GEN-LAST:event_creditsJMenuItemActionPerformed
 
-    private void lastOutputJMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lastOutputJMenuItemActionPerformed
+    private void lastHtmlOutputJMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lastHtmlOutputJMenuItemActionPerformed
         if (visualizeSwingWorker != null) {
             printOperationInProgress();
             return;
         }
         
-        lastOutputJMenuItem.setEnabled(false);
+        lastHtmlOutputJMenuItem.setEnabled(false);
         visualizeSwingWorker = new VisualizeResultsSwingWorker();
         visualizeSwingWorker.execute();
-    }//GEN-LAST:event_lastOutputJMenuItemActionPerformed
-
-    private void chooseFileJButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_chooseFileJButtonMouseClicked
-        databaseJFileChooser.setCurrentDirectory(new File(System.getProperty("user.home") 
-                + File.separator + "Desktop"));
-        int returnValue = databaseJFileChooser.showDialog(this, "Choose");
-        
-        if(returnValue == JFileChooser.APPROVE_OPTION) {
-            File file = databaseJFileChooser.getSelectedFile();
-            databaseFilePath = file.getAbsolutePath();
-            choosenDatabaseFileJLabel.setText(databaseFilePath);
-        }
-    }//GEN-LAST:event_chooseFileJButtonMouseClicked
+    }//GEN-LAST:event_lastHtmlOutputJMenuItemActionPerformed
 
     private void exitJMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitJMenuItemActionPerformed
         System.exit(0);
     }//GEN-LAST:event_exitJMenuItemActionPerformed
-
-    private void analyzeJButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_analyzeJButtonMouseClicked
-        if (databaseSwingWorker != null) {
-            printOperationInProgress();
-            return;
-        }
-        
-        boolean specificProcess = specificProcessNameJCheckBox.isSelected();
-        analyzeJButton.setEnabled(false);
-        databaseSwingWorker = new DatabaseWorkSwingWorker(specificProcess);
-        databaseSwingWorker.execute();  
-        
-        try {
-            if(specificProcess) {
-                createSpecificProcessDialog(databaseSwingWorker.get());
-            }
-        } catch (InterruptedException | ExecutionException ex) {
-            printException(ex);
-        }
-    }//GEN-LAST:event_analyzeJButtonMouseClicked
 
     private void specificProcessJButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_specificProcessJButtonMouseClicked
         if (specificProcessSwingWorker != null) {
@@ -570,31 +470,48 @@ public class AnalyzerApp extends javax.swing.JFrame {
         specificProcessSwingWorker.execute();
     }//GEN-LAST:event_specificProcessJButtonMouseClicked
 
-    private void chooseXMLFileJButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_chooseXMLFileJButtonMouseClicked
-        xmlJFileChooser.setCurrentDirectory(new File(System.getProperty("user.home") 
-                + File.separator + "Desktop"));
-        
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("XML files (.xml)", "xml");
-        xmlJFileChooser.setFileFilter(filter);
-        int returnValue = xmlJFileChooser.showDialog(this, "Choose");
-        
-        if(returnValue == JFileChooser.APPROVE_OPTION) {
-            File file = xmlJFileChooser.getSelectedFile();
-            String xmlPath = file.getAbsolutePath();
-            choosenXMLFileJLabel.setText(xmlPath);
+    private void analyzeJButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_analyzeJButtonMouseClicked
+        if (databaseSwingWorker != null) {
+            printOperationInProgress();
+            return;
         }
-    }//GEN-LAST:event_chooseXMLFileJButtonMouseClicked
 
-    private void visualizeJButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_visualizeJButtonMouseClicked
-        if (xmlTransformSwingWorker != null) {
+        boolean specificProcess = specificProcessNameJCheckBox.isSelected();
+        analyzeJButton.setEnabled(false);
+        databaseSwingWorker = new DatabaseWorkSwingWorker(specificProcess);
+        databaseSwingWorker.execute();
+
+        try {
+            if(specificProcess) {
+                createSpecificProcessDialog(databaseSwingWorker.get());
+            }
+        } catch (InterruptedException | ExecutionException ex) {
+            printException(ex);
+        }
+    }//GEN-LAST:event_analyzeJButtonMouseClicked
+
+    private void chooseFileJButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_chooseFileJButtonMouseClicked
+        databaseJFileChooser.setCurrentDirectory(new File(System.getProperty("user.home")
+            + File.separator + "Desktop"));
+    int returnValue = databaseJFileChooser.showDialog(this, "Choose");
+
+    if(returnValue == JFileChooser.APPROVE_OPTION) {
+        File file = databaseJFileChooser.getSelectedFile();
+        databaseFilePath = file.getAbsolutePath();
+        choosenDatabaseFileJLabel.setText(databaseFilePath);
+        }
+    }//GEN-LAST:event_chooseFileJButtonMouseClicked
+
+    private void lastXmlOutputJMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lastXmlOutputJMenuItemActionPerformed
+        if(openXmlSwingWorker != null){
             printOperationInProgress();
             return;
         }
         
-        visualizeJButton.setEnabled(false);
-        xmlTransformSwingWorker = new XmlTransformationSwingWorker(choosenXMLFileJLabel.getText());
-        xmlTransformSwingWorker.execute();
-    }//GEN-LAST:event_visualizeJButtonMouseClicked
+        lastXmlOutputJMenuItem.setEnabled(false);
+        openXmlSwingWorker = new OpenXmlFileSwingWorker();
+        openXmlSwingWorker.execute();
+    }//GEN-LAST:event_lastXmlOutputJMenuItemActionPerformed
 
     private void printOperationInProgress() {
         JOptionPane.showMessageDialog(null, "Operation is already in progress", "Warning", JOptionPane.WARNING_MESSAGE);
@@ -656,21 +573,17 @@ public class AnalyzerApp extends javax.swing.JFrame {
     private javax.swing.JPanel analyzerJPanel;
     private javax.swing.JTabbedPane applicationJTabbedPane;
     private javax.swing.JButton chooseFileJButton;
-    private javax.swing.JButton chooseXMLFileJButton;
     private javax.swing.JLabel choosenDatabaseFileJLabel;
-    private javax.swing.JLabel choosenXMLFileJLabel;
     private javax.swing.JMenuItem creditsJMenuItem;
     private javax.swing.JFileChooser databaseJFileChooser;
-    private javax.swing.JMenu editJMenu;
-    private javax.swing.JMenuItem editPathJMenuItem;
     private javax.swing.JMenuItem exitJMenuItem;
     private javax.swing.JMenu fileJMenu;
     private javax.swing.JMenu helpJMenu;
     private javax.swing.JLabel infoSelectNameJLabel;
     private javax.swing.JMenuBar jMenuBar;
     private javax.swing.JLabel justInfoJLabel;
-    private javax.swing.JLabel justInfoJLabel1;
-    private javax.swing.JMenuItem lastOutputJMenuItem;
+    private javax.swing.JMenuItem lastHtmlOutputJMenuItem;
+    private javax.swing.JMenuItem lastXmlOutputJMenuItem;
     private javax.swing.JMenuItem manualJMenuItem;
     private javax.swing.JCheckBox outputAllJCheckBox;
     private javax.swing.JComboBox<String> processNameJComboBox;
@@ -679,8 +592,6 @@ public class AnalyzerApp extends javax.swing.JFrame {
     private javax.swing.JButton specificProcessJButton;
     private javax.swing.JCheckBox specificProcessNameJCheckBox;
     private javax.swing.JCheckBox specifyNumberOfGroupsJCheckBox;
-    private javax.swing.JPanel transformationJPanel;
-    private javax.swing.JButton visualizeJButton;
     private javax.swing.JMenu visualizeJMenu;
     private javax.swing.JFileChooser xmlJFileChooser;
     // End of variables declaration//GEN-END:variables

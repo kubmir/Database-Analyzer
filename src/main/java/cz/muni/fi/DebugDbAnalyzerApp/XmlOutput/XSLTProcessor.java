@@ -50,12 +50,12 @@ public class XSLTProcessor {
     
     /**
      * Method which open output html file in default browser of computer.
-     * @param htmlPath represents path to output html file
+     * @param filePath represents path to output file
      * @throws ServiceFailureException in case of error during opening html file.
      */
-    public void openHtml(String htmlPath) throws ServiceFailureException {
+    public void openFile(String filePath) throws ServiceFailureException {
         try {
-            File htmlFile = new File(htmlPath);
+            File htmlFile = new File(filePath);
             Desktop.getDesktop().browse(htmlFile.toURI());
         } catch(IOException ex) {
             LOGGER.log(Level.SEVERE, "Error while opening html file "

@@ -37,8 +37,9 @@ public class XmlWriterImpl implements XmlWriter {
      */
     public XmlWriterImpl(String pathToDbFolder) throws ServiceFailureException {
         try {
-            outputStream = new FileOutputStream(new File(pathToDbFolder + 
-                    File.separator + "xmlOutput.xml"));
+            outputStream = new FileOutputStream(new File("src" + File.separator 
+                + "main" + File.separator  + "resources" 
+                + File.separator + "xmlOutput.xml"));
             
             writer = XMLOutputFactory.newInstance().createXMLStreamWriter(
                 new OutputStreamWriter(outputStream, "utf-8"));

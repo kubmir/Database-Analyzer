@@ -18,7 +18,7 @@ public class Main {
         DatabaseAccessManagerImpl test = new DatabaseAccessManagerImpl(pathToDB);
         test.testAccessDB();
 
-        Visualizer vis = new Visualizer(pathToDB);
+        Visualizer vis = new Visualizer();
         vis.toWeb();
 
         System.out.println("Done!");
