@@ -17,7 +17,7 @@ import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileFilter;
 
 /**
- *
+ * Class which define front-end of DebugDbAnalyzerApp in java swing.
  * @author Miroslav Kubus
  */
 public class AnalyzerApp extends javax.swing.JFrame {
@@ -38,6 +38,9 @@ public class AnalyzerApp extends javax.swing.JFrame {
         visualizer = new Visualizer();
     }
     
+    /**
+     * Class which serve as file filter in file chooser. It allows only .db files.
+     */
     private class DatabaseFileFilter extends FileFilter {
 
         @Override
@@ -51,6 +54,10 @@ public class AnalyzerApp extends javax.swing.JFrame {
         }
     }
     
+    
+    /**
+     * Class which runs analyze just for specific selected process.
+     */
     private class SpecificProcessSwingWorker extends SwingWorker<Void, Void> {
 
         private final String selectedProcess;
@@ -79,6 +86,11 @@ public class AnalyzerApp extends javax.swing.JFrame {
         }  
     }
     
+    /**
+     * Class which runs analyze for all process names in database. If is checked
+     * specificProcessNameJCheckBox it creates index and retrieves all process names
+     * from database.
+     */
     private class DatabaseWorkSwingWorker extends SwingWorker<List<String>, Void> {
 
         private final boolean specificProcess;
@@ -118,6 +130,10 @@ public class AnalyzerApp extends javax.swing.JFrame {
         }       
     }
     
+    /**
+     * Method which creates jDialog for analyze of specific process.
+     * @param processes list of string representing process names in database.
+     */
     private void createSpecificProcessDialog(List<String> processes) {
         selectProcessJDialog.setSize(405, 235);
         selectProcessJDialog.setResizable(false);
@@ -129,6 +145,9 @@ public class AnalyzerApp extends javax.swing.JFrame {
         selectProcessJDialog.setVisible(true);
     }
     
+    /**
+     * Class which opens last xml output of application.
+     */
     private class OpenXmlFileSwingWorker extends SwingWorker<Void, Void> {
         private final XSLTProcessor pro;
         
@@ -155,6 +174,9 @@ public class AnalyzerApp extends javax.swing.JFrame {
         
     }
     
+    /**
+     * Class which opens last html output of application.
+     */
     private class VisualizeResultsSwingWorker extends SwingWorker<Void, Void> {
         
         private final XSLTProcessor pro;
@@ -200,7 +222,6 @@ public class AnalyzerApp extends javax.swing.JFrame {
         infoSelectNameJLabel = new javax.swing.JLabel();
         outputAllJCheckBox = new javax.swing.JCheckBox();
         databaseJFileChooser = new javax.swing.JFileChooser();
-        xmlJFileChooser = new javax.swing.JFileChooser();
         applicationJTabbedPane = new javax.swing.JTabbedPane();
         analyzerJPanel = new javax.swing.JPanel();
         chooseFileJButton = new javax.swing.JButton();
@@ -513,20 +534,40 @@ public class AnalyzerApp extends javax.swing.JFrame {
         openXmlSwingWorker.execute();
     }//GEN-LAST:event_lastXmlOutputJMenuItemActionPerformed
 
+    /**
+     * Method which prints information that operation is already in progress.
+     */
     private void printOperationInProgress() {
         JOptionPane.showMessageDialog(null, "Operation is already in progress", "Warning", JOptionPane.WARNING_MESSAGE);
     }
     
+    /**
+     * Method which print details about exception.
+     * @param ex represents throwed exception
+     */
     private void printException(Throwable ex) {
         JOptionPane.showMessageDialog(null, ex.getCause().getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
     
+    /**
+     * Method which set up jLabel in Help menu item.
+     * @param label represents jLabel to be set
+     * @param fontSize represents size of font in label
+     * @param text rperesents text which will be written out in label
+     */
     private void setUpJLabel(JLabel label, float fontSize, String text) {
         label.setHorizontalAlignment(JLabel.CENTER);
         label.setText("<html><div style='text-align: center;'>" + text + "</div></html>");
         label.setFont(label.getFont().deriveFont(fontSize));
     }
     
+    /**
+     * Method which add some component to frame
+     * @param frame represents frame where compononent will be added
+     * @param component represents  compononent to be added to frame
+     * @param xSize represents x size of component in frame
+     * @param ySize represents y size of component in frame
+     */
     private void addComponentToFrame(JFrame frame, JComponent component, int xSize, int ySize) {
         frame.add(component, BorderLayout.CENTER);
         frame.pack();
@@ -593,6 +634,5 @@ public class AnalyzerApp extends javax.swing.JFrame {
     private javax.swing.JCheckBox specificProcessNameJCheckBox;
     private javax.swing.JCheckBox specifyNumberOfGroupsJCheckBox;
     private javax.swing.JMenu visualizeJMenu;
-    private javax.swing.JFileChooser xmlJFileChooser;
     // End of variables declaration//GEN-END:variables
 }
