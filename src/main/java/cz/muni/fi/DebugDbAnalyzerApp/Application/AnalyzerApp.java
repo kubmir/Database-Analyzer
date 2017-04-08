@@ -234,7 +234,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
         specificProcessNameJCheckBox = new javax.swing.JCheckBox();
         specifyNumberOfGroupsJCheckBox = new javax.swing.JCheckBox();
         analyzeJButton = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        loggerOutputJScrollPane = new javax.swing.JScrollPane();
         loggerJTextArea = new javax.swing.JTextArea();
         jMenuBar = new javax.swing.JMenuBar();
         fileJMenu = new javax.swing.JMenu();
@@ -307,6 +307,8 @@ public class AnalyzerApp extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Debug database analyzer");
 
+        applicationJTabbedPane.setPreferredSize(new java.awt.Dimension(655, 465));
+
         chooseFileJButton.setText("Choose file");
         chooseFileJButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -339,7 +341,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
         loggerJTextArea.setEditable(false);
         loggerJTextArea.setColumns(20);
         loggerJTextArea.setRows(5);
-        jScrollPane1.setViewportView(loggerJTextArea);
+        loggerOutputJScrollPane.setViewportView(loggerJTextArea);
 
         javax.swing.GroupLayout analyzerJPanelLayout = new javax.swing.GroupLayout(analyzerJPanel);
         analyzerJPanel.setLayout(analyzerJPanelLayout);
@@ -354,12 +356,12 @@ public class AnalyzerApp extends javax.swing.JFrame {
                             .addComponent(specificProcessNameJCheckBox)
                             .addComponent(specifyNumberOfGroupsJCheckBox)
                             .addComponent(choosenDatabaseFileJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 450, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(27, 27, 27)
-                        .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGap(37, 37, 37)
+                        .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(chooseFileJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(analyzeJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(26, Short.MAX_VALUE))
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
+                .addContainerGap(24, Short.MAX_VALUE))
+            .addComponent(loggerOutputJScrollPane, javax.swing.GroupLayout.Alignment.TRAILING)
         );
         analyzerJPanelLayout.setVerticalGroup(
             analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -367,9 +369,9 @@ public class AnalyzerApp extends javax.swing.JFrame {
                 .addGap(26, 26, 26)
                 .addComponent(justInfoJLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(chooseFileJButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(choosenDatabaseFileJLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(choosenDatabaseFileJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(chooseFileJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(analyzerJPanelLayout.createSequentialGroup()
@@ -378,7 +380,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
                         .addComponent(specifyNumberOfGroupsJCheckBox))
                     .addComponent(analyzeJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE))
+                .addComponent(loggerOutputJScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 264, Short.MAX_VALUE))
         );
 
         applicationJTabbedPane.addTab("Analyzer", analyzerJPanel);
@@ -635,11 +637,11 @@ public class AnalyzerApp extends javax.swing.JFrame {
     private javax.swing.JMenu helpJMenu;
     private javax.swing.JLabel infoSelectNameJLabel;
     private javax.swing.JMenuBar jMenuBar;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel justInfoJLabel;
     private javax.swing.JMenuItem lastHtmlOutputJMenuItem;
     private javax.swing.JMenuItem lastXmlOutputJMenuItem;
     private javax.swing.JTextArea loggerJTextArea;
+    private javax.swing.JScrollPane loggerOutputJScrollPane;
     private javax.swing.JMenuItem manualJMenuItem;
     private javax.swing.JCheckBox outputAllJCheckBox;
     private javax.swing.JComboBox<String> processNameJComboBox;
