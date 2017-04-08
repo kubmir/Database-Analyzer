@@ -358,7 +358,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
                         .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(chooseFileJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(analyzeJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(36, Short.MAX_VALUE))
+                .addContainerGap(26, Short.MAX_VALUE))
             .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
         );
         analyzerJPanelLayout.setVerticalGroup(
@@ -378,12 +378,12 @@ public class AnalyzerApp extends javax.swing.JFrame {
                         .addComponent(specifyNumberOfGroupsJCheckBox))
                     .addComponent(analyzeJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 332, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE))
         );
 
         applicationJTabbedPane.addTab("Analyzer", analyzerJPanel);
 
-        getContentPane().add(applicationJTabbedPane, java.awt.BorderLayout.PAGE_START);
+        getContentPane().add(applicationJTabbedPane, java.awt.BorderLayout.CENTER);
 
         fileJMenu.setText("File");
 
