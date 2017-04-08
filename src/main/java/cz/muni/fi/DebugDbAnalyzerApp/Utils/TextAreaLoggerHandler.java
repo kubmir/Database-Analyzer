@@ -12,6 +12,7 @@ public class TextAreaLoggerHandler extends StreamHandler {
     public void initTextAreaHandler(JTextArea textArea) {
         this.textArea = textArea;
         this.setLevel(Level.ALL);
+        this.setFormatter(new TextAreaLoggerFormatter());
     }
 
     @Override
@@ -21,6 +22,7 @@ public class TextAreaLoggerHandler extends StreamHandler {
 
         if (textArea != null) {
             textArea.append(getFormatter().format(record));
+            textArea.setCaretPosition(textArea.getDocument().getLength());
         }
     }
 }
