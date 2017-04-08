@@ -3,6 +3,7 @@ package cz.muni.fi.DebugDbAnalyzerApp.Utils;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.SimpleFormatter;
 
@@ -27,6 +28,11 @@ public class TextAreaLoggerFormatter extends SimpleFormatter {
         builder.append("[").append(record.getLevel()).append("] -> ");
         builder.append(formatMessage(record));
         builder.append("\n");
+        
+        if(record.getLevel() == Level.SEVERE) {
+            builder.append(record.getThrown().toString());
+            builder.append("\n");
+        }
         
         return builder.toString();
     }

@@ -28,10 +28,9 @@ public class XSLTProcessor {
      * @param handler represents handler for visualizing errors in frontend
      */
     public XSLTProcessor(TextAreaLoggerHandler handler) {
-        LOGGER.addHandler(handler);
-    }
-    
-    public XSLTProcessor() {
+        if(LOGGER.getHandlers().length == 0) {
+            LOGGER.addHandler(handler);
+        }
     }
     
     /**

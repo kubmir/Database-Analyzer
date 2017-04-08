@@ -46,7 +46,9 @@ public class XmlWriterImpl implements XmlWriter {
             writer = XMLOutputFactory.newInstance().createXMLStreamWriter(
                 new OutputStreamWriter(outputStream, "utf-8"));
             
-            LOGGER.addHandler(textAreaHandler);
+            if(LOGGER.getHandlers().length == 0) {
+                LOGGER.addHandler(textAreaHandler);
+            }
         } catch(FileNotFoundException | UnsupportedEncodingException | XMLStreamException ex) {
             LOGGER.log(Level.SEVERE, "Error while creating XML writer!", ex);
             throw new ServiceFailureException("Internal error: error while "

@@ -37,7 +37,10 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
      * @throws ServiceFailureException in case of error during initialization of XmlWriterImpl
      */
     public DatabaseAccessManagerImpl(String pathToDB, TextAreaLoggerHandler logHandler) throws ServiceFailureException {
-        LOGGER.addHandler(logHandler);
+        if(LOGGER.getHandlers().length == 0) {
+            LOGGER.addHandler(logHandler);
+        }
+        
         fileWorker = new FileWorkerImpl();
         analyzer = new DataAnalyzerImpl(fileWorker.getNumberOfLogsAroundErrors(pathToDB));
         myWriter = new XmlWriterImpl(fileWorker.getDatabaseFolder(pathToDB), logHandler);
