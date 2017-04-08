@@ -1,6 +1,7 @@
 package cz.muni.fi.DebugDbAnalyzerApp.XmlOutput;
 
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.ServiceFailureException;
+import cz.muni.fi.DebugDbAnalyzerApp.Utils.TextAreaLoggerHandler;
 import java.io.File;
 
 /**
@@ -21,16 +22,22 @@ public class Visualizer {
     private static final String PATH_TO_HTML = PROJECT_FOLDER 
                 + File.separator + "htmlOutput.html";
     
+    
     /**
      * Method which transform xml output to html output using xslt template.
+     * @param handler represents handler for XSLTProcessor
      * @throws ServiceFailureException in case of error while transformation.
      */
-    public void toWeb() throws ServiceFailureException {        
-        XSLTProcessor pro = new XSLTProcessor();
+    public void toWeb(TextAreaLoggerHandler handler) throws ServiceFailureException {        
+        XSLTProcessor pro = new XSLTProcessor(handler);
         pro.transformToHtml(PATH_TO_XSLT, PATH_TO_XML, PATH_TO_HTML);
         pro.openFile(PATH_TO_HTML);
     }
-    
+   
+    /**
+     * Returns path to xml file.
+     * @return path to xml file where data are stored.
+     */
     public static String getPATH_TO_XML() {
         return PATH_TO_XML;
     }

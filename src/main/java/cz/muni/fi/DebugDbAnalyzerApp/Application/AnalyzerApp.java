@@ -1,6 +1,7 @@
 package cz.muni.fi.DebugDbAnalyzerApp.Application;
 
 import cz.muni.fi.DebugDbAnalyzerApp.Database.DatabaseAccessManagerImpl;
+import cz.muni.fi.DebugDbAnalyzerApp.Utils.TextAreaLoggerHandler;
 import cz.muni.fi.DebugDbAnalyzerApp.XmlOutput.Visualizer;
 import cz.muni.fi.DebugDbAnalyzerApp.XmlOutput.XSLTProcessor;
 import java.awt.BorderLayout;
@@ -29,6 +30,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
     private String databaseFilePath = null;
     private DatabaseAccessManagerImpl databaseManager = null;
     private Visualizer visualizer = null;
+    private TextAreaLoggerHandler textAreaHandler = null;
     
     /**
      * Creates new form AnalyzerApp
@@ -36,6 +38,8 @@ public class AnalyzerApp extends javax.swing.JFrame {
     public AnalyzerApp() {
         initComponents();
         visualizer = new Visualizer();
+        textAreaHandler = new TextAreaLoggerHandler();
+        textAreaHandler.initTextAreaHandler(loggerJTextArea);
     }
     
     /**
@@ -70,7 +74,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
         protected Void doInBackground() throws Exception {
             databaseManager.accessDebugLogTable(Collections.singletonList(selectedProcess));
             databaseManager.dropProcessNameIndex();
-            visualizer.toWeb();
+            visualizer.toWeb(textAreaHandler);
             return null;
         }
         
@@ -104,14 +108,14 @@ public class AnalyzerApp extends javax.swing.JFrame {
             List<String> processes = null;
             
             if(databaseFilePath != null) {
-                databaseManager = new DatabaseAccessManagerImpl(databaseFilePath);
+                databaseManager = new DatabaseAccessManagerImpl(databaseFilePath, textAreaHandler);
                 databaseManager.createIndexOnProcessName();
                 processes = databaseManager.getAllProcessNamesFromDatabase();
 
                 if(!specificProcess) {
                     databaseManager.accessDebugLogTable(processes);
                     databaseManager.dropProcessNameIndex();
-                    visualizer.toWeb();
+                    visualizer.toWeb(textAreaHandler);
                 } 
             }
             
@@ -152,7 +156,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
         private final XSLTProcessor pro;
         
         public OpenXmlFileSwingWorker() {
-            pro = new XSLTProcessor();
+            pro = new XSLTProcessor(textAreaHandler);
         }
         
         @Override
@@ -183,7 +187,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
         private final String htmlPath;
         
         public VisualizeResultsSwingWorker() {
-            pro = new XSLTProcessor();
+            pro = new XSLTProcessor(textAreaHandler);
             htmlPath = "src" + File.separator + "main" + File.separator 
                 + "resources" + File.separator + "htmlOutput.html";
         }
@@ -230,6 +234,8 @@ public class AnalyzerApp extends javax.swing.JFrame {
         specificProcessNameJCheckBox = new javax.swing.JCheckBox();
         specifyNumberOfGroupsJCheckBox = new javax.swing.JCheckBox();
         analyzeJButton = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        loggerJTextArea = new javax.swing.JTextArea();
         jMenuBar = new javax.swing.JMenuBar();
         fileJMenu = new javax.swing.JMenu();
         exitJMenuItem = new javax.swing.JMenuItem();
@@ -330,6 +336,11 @@ public class AnalyzerApp extends javax.swing.JFrame {
             }
         });
 
+        loggerJTextArea.setEditable(false);
+        loggerJTextArea.setColumns(20);
+        loggerJTextArea.setRows(5);
+        jScrollPane1.setViewportView(loggerJTextArea);
+
         javax.swing.GroupLayout analyzerJPanelLayout = new javax.swing.GroupLayout(analyzerJPanel);
         analyzerJPanel.setLayout(analyzerJPanelLayout);
         analyzerJPanelLayout.setHorizontalGroup(
@@ -348,6 +359,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
                             .addComponent(chooseFileJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(analyzeJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(36, Short.MAX_VALUE))
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
         );
         analyzerJPanelLayout.setVerticalGroup(
             analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -365,7 +377,8 @@ public class AnalyzerApp extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(specifyNumberOfGroupsJCheckBox))
                     .addComponent(analyzeJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(350, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 332, Short.MAX_VALUE))
         );
 
         applicationJTabbedPane.addTab("Analyzer", analyzerJPanel);
@@ -622,9 +635,11 @@ public class AnalyzerApp extends javax.swing.JFrame {
     private javax.swing.JMenu helpJMenu;
     private javax.swing.JLabel infoSelectNameJLabel;
     private javax.swing.JMenuBar jMenuBar;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel justInfoJLabel;
     private javax.swing.JMenuItem lastHtmlOutputJMenuItem;
     private javax.swing.JMenuItem lastXmlOutputJMenuItem;
+    private javax.swing.JTextArea loggerJTextArea;
     private javax.swing.JMenuItem manualJMenuItem;
     private javax.swing.JCheckBox outputAllJCheckBox;
     private javax.swing.JComboBox<String> processNameJComboBox;

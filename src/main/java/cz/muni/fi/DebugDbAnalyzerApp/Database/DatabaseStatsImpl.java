@@ -1,6 +1,5 @@
 package cz.muni.fi.DebugDbAnalyzerApp.Database;
 
-import cz.muni.fi.DebugDbAnalyzerApp.Database.DatabaseStats;
 import cz.muni.fi.DebugDbAnalyzerApp.DataStorage.ErrorAndCriticalStats;
 import static java.util.Collections.unmodifiableMap;
 import java.util.HashMap;

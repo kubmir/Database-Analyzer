@@ -4,6 +4,7 @@ import cz.muni.fi.DebugDbAnalyzerApp.DataStorage.ErrorAndCriticalStats;
 import cz.muni.fi.DebugDbAnalyzerApp.DataStorage.GroupOfLogs;
 import cz.muni.fi.DebugDbAnalyzerApp.DataStorage.ProcessStats;
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.ServiceFailureException;
+import cz.muni.fi.DebugDbAnalyzerApp.Utils.TextAreaLoggerHandler;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -32,10 +33,11 @@ public class XmlWriterImpl implements XmlWriter {
     /**
      * Constructor which creates new file xmlOutput.xml in database folder.
      * @param pathToDbFolder represents path to folder of database.
+     * @param textAreaHandler represents handler for visualizing errors in frontend
      * @throws ServiceFailureException in case of error during creating writer
      * and output stream.
      */
-    public XmlWriterImpl(String pathToDbFolder) throws ServiceFailureException {
+    public XmlWriterImpl(String pathToDbFolder, TextAreaLoggerHandler textAreaHandler) throws ServiceFailureException {
         try {
             outputStream = new FileOutputStream(new File("src" + File.separator 
                 + "main" + File.separator  + "resources" 
@@ -43,7 +45,8 @@ public class XmlWriterImpl implements XmlWriter {
             
             writer = XMLOutputFactory.newInstance().createXMLStreamWriter(
                 new OutputStreamWriter(outputStream, "utf-8"));
-        
+            
+            LOGGER.addHandler(textAreaHandler);
         } catch(FileNotFoundException | UnsupportedEncodingException | XMLStreamException ex) {
             LOGGER.log(Level.SEVERE, "Error while creating XML writer!", ex);
             throw new ServiceFailureException("Internal error: error while "
@@ -201,7 +204,7 @@ public class XmlWriterImpl implements XmlWriter {
         }
     }
     
-    /** PREHLADNEJSIE VACSI SUBOR
+    /**
      * Method which write one specific group of logs. It writes startID, endID,
      * count, level, pid, tid, type attributes and text node of log.
      * @param res represents one group of logs. Group is created by Analyzer. 
@@ -227,41 +230,6 @@ public class XmlWriterImpl implements XmlWriter {
         writeElementWithCharacters("pid", String.valueOf(res.getProcessID()));
         writeElementWithCharacters("count", String.valueOf(res.getCount()));
         writeEndOfElement();
-    }
-    
-    /**
-     * Method which write one specific group of logs. It writes startID, endID,
-     * count, level, pid, tid, type attributes and text node of log.
-     * @param res represents one group of logs. Group is created by Analyzer. 
-     * @throws ServiceFailureException in case of error while writing data.
-     */
-    private void writeSpecificResult2(GroupOfLogs res) throws ServiceFailureException {
-        try {
-            writer.writeStartElement("Log");
-            writer.writeAttribute("startID", String.valueOf(res.getStartID()));
-            writer.writeAttribute("endID", String.valueOf(res.getEndID()));
-            writer.writeAttribute("count", String.valueOf(res.getCount()));
-            writer.writeAttribute("level", String.valueOf(res.getLevel()));
-            writer.writeAttribute("pid", String.valueOf(res.getProcessID()));
-            writer.writeAttribute("tid", String.valueOf(res.getThreadID()));
-            writer.writeAttribute("type", res.getType());
-            writer.writeAttribute("module", String.valueOf(res.getModule()));
-            writer.writeAttribute("startDate", res.getStartDate());
-            writer.writeAttribute("endDate", res.getEndDate());
-            
-            if(res.getType().compareTo("Error") == 0 || res.getType().compareTo("Critical") == 0) {
-                writer.writeCharacters(removeNonValidXMLCharacters(res.getIdentity()));
-            } else {
-                writer.writeCharacters(res.getIdentity());
-            }
-            
-            writer.writeEndElement();
-        } catch (XMLStreamException ex) {
-            LOGGER.log(Level.SEVERE, "Error while writing log with startID " 
-                    + res.getStartID() + "!", ex);
-            throw new ServiceFailureException("Internal error: error while "
-                    + "writing log with startID " + res.getStartID() + "!", ex);
-        }
     }
     
     /**

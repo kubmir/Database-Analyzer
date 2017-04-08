@@ -33,14 +33,16 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
     /**
      * Constructor for constructing SqlDb class. It also creates instance of DataAnalyzerImpl.
      * @param pathToDB represents path to chosen database file
+     * @param logHandler
      * @throws ServiceFailureException in case of error during initialization of XmlWriterImpl
      */
-    public DatabaseAccessManagerImpl(String pathToDB) throws ServiceFailureException {
+    public DatabaseAccessManagerImpl(String pathToDB, TextAreaLoggerHandler logHandler) throws ServiceFailureException {
+        LOGGER.addHandler(logHandler);
         fileWorker = new FileWorkerImpl();
         analyzer = new DataAnalyzerImpl(fileWorker.getNumberOfLogsAroundErrors(pathToDB));
-        myWriter = new XmlWriterImpl(fileWorker.getDatabaseFolder(pathToDB));
+        myWriter = new XmlWriterImpl(fileWorker.getDatabaseFolder(pathToDB), logHandler);
         databaseURL = fileWorker.modifySlashes(pathToDB);
-        this.createDataSource();
+        this.createDataSource();   
     }
     
     /**
@@ -50,14 +52,17 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
         this.ds = new BasicDataSource();
         ds.setDriverClassName("org.sqlite.JDBC");
         ds.setUrl("jdbc:sqlite:/" + databaseURL);
+        LOGGER.log(Level.INFO, "Database connection created!");
     }
         
     @Override
     public void createIndexOnProcessName() throws ServiceFailureException {
+        LOGGER.log(Level.INFO, "Creating database index on processName ...");
         try(Connection con = ds.getConnection();
             Statement statement = con.createStatement()) {
             statement.setQueryTimeout(60);
             statement.executeUpdate("CREATE INDEX if not exists IX_debug_log_processName ON debug_log (process_name)");
+            LOGGER.log(Level.INFO, "Database index on processName created!");
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, "Error while creating index on process_name "
                     + "column in table debug_log in database!", ex);
@@ -68,9 +73,12 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
     
     @Override
     public void dropProcessNameIndex() throws ServiceFailureException {
-         try(Connection con = ds.getConnection();
+        LOGGER.log(Level.INFO, "Dropping database index on processName ...");
+        try(Connection con = ds.getConnection();
             Statement statement = con.createStatement()) {
             statement.executeUpdate("DROP INDEX if exists IX_debug_log_processName");
+            LOGGER.log(Level.INFO, "Database index on processName dropped!");
+            LOGGER.log(Level.INFO, "Database analyzed!");
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, "Error while dropping index on process_name "
                     + "column in table debug_log in database!", ex);
@@ -81,6 +89,7 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
     
     @Override
     public List<String> getAllProcessNamesFromDatabase() throws ServiceFailureException {
+        LOGGER.log(Level.INFO, "Retrieving all unique process names from database ...");
         List<String> processNames = new ArrayList<>();
         
         try(Connection con = ds.getConnection();
@@ -90,13 +99,13 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
             while(rs.next()) {
                 processNames.add(rs.getString(1));
             }
-            
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, "Error while getting all process names from database!", ex);
             throw new ServiceFailureException("Internal error: error while "
                     + "retrieving all process names from database!", ex);
         }
         
+        LOGGER.log(Level.INFO, "All unique process names from database retrieved!");
         return processNames;
     }
     
@@ -142,7 +151,7 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
         } catch(SQLException ex) {
             throw new ServiceFailureException("Internal error: error while closing "
                     + "ResultSet, statement or connection after accessing the database", ex);
-        }
+        } 
     }
     
     private void writeStartOfFile() throws ServiceFailureException {
@@ -170,7 +179,8 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
         
         try {
             con = ds.getConnection();
-           
+            LOGGER.log(Level.INFO, "Retrieving logs associated with {0}", name);
+
             while(size == 15000) {
                 statement = con.prepareStatement("SELECT * FROM debug_log WHERE process_name = ? LIMIT 15000 OFFSET ?");
                 statement.setFetchSize(100);
@@ -188,7 +198,6 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
                     size++;
                 }
                 analyzer.calculateStatisticsForSpecificProcess(listOfElements, statistics);
-                System.out.println(statistics);
                 myWriter.writeLogsToOutputDoc(analyzer.analyzeDebugLogTable(listOfElements), statistics);
                 listOfElements.clear();
                 System.gc();
