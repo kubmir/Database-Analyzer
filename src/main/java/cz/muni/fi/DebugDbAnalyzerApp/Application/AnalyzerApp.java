@@ -1,6 +1,7 @@
 package cz.muni.fi.DebugDbAnalyzerApp.Application;
 
 import cz.muni.fi.DebugDbAnalyzerApp.Database.DatabaseAccessManagerImpl;
+import cz.muni.fi.DebugDbAnalyzerApp.Utils.ServiceFailureException;
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.TextAreaLoggerHandler;
 import cz.muni.fi.DebugDbAnalyzerApp.XmlOutput.Visualizer;
 import cz.muni.fi.DebugDbAnalyzerApp.XmlOutput.XSLTProcessor;
@@ -9,6 +10,8 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -66,8 +69,13 @@ public class AnalyzerApp extends javax.swing.JFrame {
 
         private final String selectedProcess;
         
-        public SpecificProcessSwingWorker(String selectedProcess) {
+        public SpecificProcessSwingWorker(String selectedProcess) throws ServiceFailureException {
             this.selectedProcess = selectedProcess; 
+        }
+        
+        public SpecificProcessSwingWorker(String selectedProcess, int aroundError) throws ServiceFailureException {
+            this.selectedProcess = selectedProcess; 
+            databaseManager = new DatabaseAccessManagerImpl(databaseFilePath, textAreaHandler, aroundError);
         }
         
         @Override
@@ -502,8 +510,21 @@ public class AnalyzerApp extends javax.swing.JFrame {
         
         String selectedProcess = (String) processNameJComboBox.getSelectedItem();
         selectProcessJDialog.dispose();
-        specificProcessSwingWorker = new SpecificProcessSwingWorker(selectedProcess);
-        specificProcessSwingWorker.execute();
+        boolean allGroups = outputAllJCheckBox.isSelected();
+        
+        try {
+            if(allGroups) {
+                specificProcessSwingWorker = new SpecificProcessSwingWorker(selectedProcess, -1);
+            } else {
+                specificProcessSwingWorker = new SpecificProcessSwingWorker(selectedProcess);
+            }
+            
+            specificProcessSwingWorker.execute();
+        } catch (ServiceFailureException ex) {
+            this.printException(ex);
+        }
+        
+        outputAllJCheckBox.setSelected(false);
     }//GEN-LAST:event_specificProcessJButtonMouseClicked
 
     private void analyzeJButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_analyzeJButtonMouseClicked
