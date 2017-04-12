@@ -10,8 +10,6 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -34,15 +32,18 @@ public class AnalyzerApp extends javax.swing.JFrame {
     private DatabaseAccessManagerImpl databaseManager = null;
     private Visualizer visualizer = null;
     private TextAreaLoggerHandler textAreaHandler = null;
+    private int logsAroundErrors;
     
     /**
      * Creates new form AnalyzerApp
      */
     public AnalyzerApp() {
         initComponents();
+        numberOfGroupsJTextField.setVisible(false);
         visualizer = new Visualizer();
         textAreaHandler = new TextAreaLoggerHandler();
         textAreaHandler.initTextAreaHandler(loggerJTextArea);
+        logsAroundErrors = Integer.MIN_VALUE;
     }
     
     /**
@@ -116,7 +117,11 @@ public class AnalyzerApp extends javax.swing.JFrame {
             List<String> processes = null;
             
             if(databaseFilePath != null) {
-                databaseManager = new DatabaseAccessManagerImpl(databaseFilePath, textAreaHandler);
+                if(logsAroundErrors == Integer.MIN_VALUE) {
+                    databaseManager = new DatabaseAccessManagerImpl(databaseFilePath, textAreaHandler);
+                } else {
+                    databaseManager = new DatabaseAccessManagerImpl(databaseFilePath, textAreaHandler, logsAroundErrors);
+                }
                 databaseManager.createIndexOnProcessName();
                 processes = databaseManager.getAllProcessNamesFromDatabase();
 
@@ -234,6 +239,10 @@ public class AnalyzerApp extends javax.swing.JFrame {
         infoSelectNameJLabel = new javax.swing.JLabel();
         outputAllJCheckBox = new javax.swing.JCheckBox();
         databaseJFileChooser = new javax.swing.JFileChooser();
+        specifyAmountJDialog = new javax.swing.JDialog();
+        justInfoJLabel3 = new javax.swing.JLabel();
+        amountJTextField = new javax.swing.JTextField();
+        submitAmountJButton = new javax.swing.JButton();
         applicationJTabbedPane = new javax.swing.JTabbedPane();
         analyzerJPanel = new javax.swing.JPanel();
         chooseFileJButton = new javax.swing.JButton();
@@ -244,6 +253,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
         analyzeJButton = new javax.swing.JButton();
         loggerOutputJScrollPane = new javax.swing.JScrollPane();
         loggerJTextArea = new javax.swing.JTextArea();
+        numberOfGroupsJTextField = new javax.swing.JTextField();
         jMenuBar = new javax.swing.JMenuBar();
         fileJMenu = new javax.swing.JMenu();
         exitJMenuItem = new javax.swing.JMenuItem();
@@ -312,6 +322,42 @@ public class AnalyzerApp extends javax.swing.JFrame {
         databaseJFileChooser.setDialogTitle("Database file chooser");
         databaseJFileChooser.setFileFilter(new DatabaseFileFilter());
 
+        specifyAmountJDialog.setTitle("Amount of logs groups around error group");
+
+        justInfoJLabel3.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        justInfoJLabel3.setText("Specify prefered amount of logs groups around errors/critical groups:");
+
+        submitAmountJButton.setText("Submit");
+        submitAmountJButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                submitAmountJButtonMouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout specifyAmountJDialogLayout = new javax.swing.GroupLayout(specifyAmountJDialog.getContentPane());
+        specifyAmountJDialog.getContentPane().setLayout(specifyAmountJDialogLayout);
+        specifyAmountJDialogLayout.setHorizontalGroup(
+            specifyAmountJDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(specifyAmountJDialogLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(justInfoJLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(amountJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(submitAmountJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        specifyAmountJDialogLayout.setVerticalGroup(
+            specifyAmountJDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(specifyAmountJDialogLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(specifyAmountJDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(justInfoJLabel3)
+                    .addComponent(amountJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(submitAmountJButton))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Debug database analyzer");
 
@@ -338,6 +384,11 @@ public class AnalyzerApp extends javax.swing.JFrame {
         specificProcessNameJCheckBox.setText("analyze specific process name");
 
         specifyNumberOfGroupsJCheckBox.setText("specify the number of groups around errors ");
+        specifyNumberOfGroupsJCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                specifyNumberOfGroupsJCheckBoxActionPerformed(evt);
+            }
+        });
 
         analyzeJButton.setText("Analyze");
         analyzeJButton.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -351,6 +402,9 @@ public class AnalyzerApp extends javax.swing.JFrame {
         loggerJTextArea.setRows(5);
         loggerOutputJScrollPane.setViewportView(loggerJTextArea);
 
+        numberOfGroupsJTextField.setForeground(new java.awt.Color(204, 204, 255));
+        numberOfGroupsJTextField.setText("number");
+
         javax.swing.GroupLayout analyzerJPanelLayout = new javax.swing.GroupLayout(analyzerJPanel);
         analyzerJPanel.setLayout(analyzerJPanelLayout);
         analyzerJPanelLayout.setHorizontalGroup(
@@ -362,7 +416,10 @@ public class AnalyzerApp extends javax.swing.JFrame {
                     .addGroup(analyzerJPanelLayout.createSequentialGroup()
                         .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(specificProcessNameJCheckBox)
-                            .addComponent(specifyNumberOfGroupsJCheckBox)
+                            .addGroup(analyzerJPanelLayout.createSequentialGroup()
+                                .addComponent(specifyNumberOfGroupsJCheckBox)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(numberOfGroupsJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(choosenDatabaseFileJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 450, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(37, 37, 37)
                         .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -385,10 +442,12 @@ public class AnalyzerApp extends javax.swing.JFrame {
                     .addGroup(analyzerJPanelLayout.createSequentialGroup()
                         .addComponent(specificProcessNameJCheckBox)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(specifyNumberOfGroupsJCheckBox))
+                        .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(specifyNumberOfGroupsJCheckBox)
+                            .addComponent(numberOfGroupsJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(analyzeJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(loggerOutputJScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 264, Short.MAX_VALUE))
+                .addComponent(loggerOutputJScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 262, Short.MAX_VALUE))
         );
 
         applicationJTabbedPane.addTab("Analyzer", analyzerJPanel);
@@ -570,6 +629,29 @@ public class AnalyzerApp extends javax.swing.JFrame {
         openXmlSwingWorker.execute();
     }//GEN-LAST:event_lastXmlOutputJMenuItemActionPerformed
 
+    private void specifyNumberOfGroupsJCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_specifyNumberOfGroupsJCheckBoxActionPerformed
+        if(this.specifyNumberOfGroupsJCheckBox.isSelected()) {
+            amountJTextField.setText("");
+            specifyAmountJDialog.setSize(710, 100);
+            specifyAmountJDialog.setVisible(true);
+        } else {
+            specifyAmountJDialog.setVisible(false);
+            logsAroundErrors = Integer.MIN_VALUE;
+        }
+        
+    }//GEN-LAST:event_specifyNumberOfGroupsJCheckBoxActionPerformed
+
+    private void submitAmountJButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_submitAmountJButtonMouseClicked
+        String text = amountJTextField.getText();
+        try {
+            logsAroundErrors = Integer.parseInt(text);
+            specifyAmountJDialog.setVisible(false);
+        } catch(Exception ex) {
+            printException(new ServiceFailureException("Error while parsing"
+                    + " amount of logs around errors. Type integer number!", ex));
+        }
+    }//GEN-LAST:event_submitAmountJButtonMouseClicked
+
     /**
      * Method which prints information that operation is already in progress.
      */
@@ -578,11 +660,19 @@ public class AnalyzerApp extends javax.swing.JFrame {
     }
     
     /**
-     * Method which print details about exception.
+     * Method which print details about exception that caused exception.
      * @param ex represents throwed exception
      */
     private void printException(Throwable ex) {
         JOptionPane.showMessageDialog(null, ex.getCause().getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+    
+    /**
+     * Method which print details about exception.
+     * @param ex represents throwed exception
+     */
+    private void printException(ServiceFailureException ex) {
+        JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
     
     /**
@@ -646,6 +736,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField amountJTextField;
     private javax.swing.JButton analyzeJButton;
     private javax.swing.JPanel analyzerJPanel;
     private javax.swing.JTabbedPane applicationJTabbedPane;
@@ -659,18 +750,22 @@ public class AnalyzerApp extends javax.swing.JFrame {
     private javax.swing.JLabel infoSelectNameJLabel;
     private javax.swing.JMenuBar jMenuBar;
     private javax.swing.JLabel justInfoJLabel;
+    private javax.swing.JLabel justInfoJLabel3;
     private javax.swing.JMenuItem lastHtmlOutputJMenuItem;
     private javax.swing.JMenuItem lastXmlOutputJMenuItem;
     private javax.swing.JTextArea loggerJTextArea;
     private javax.swing.JScrollPane loggerOutputJScrollPane;
     private javax.swing.JMenuItem manualJMenuItem;
+    private javax.swing.JTextField numberOfGroupsJTextField;
     private javax.swing.JCheckBox outputAllJCheckBox;
     private javax.swing.JComboBox<String> processNameJComboBox;
     private javax.swing.JDialog selectProcessJDialog;
     private javax.swing.JPanel selectProcessJPanel;
     private javax.swing.JButton specificProcessJButton;
     private javax.swing.JCheckBox specificProcessNameJCheckBox;
+    private javax.swing.JDialog specifyAmountJDialog;
     private javax.swing.JCheckBox specifyNumberOfGroupsJCheckBox;
+    private javax.swing.JButton submitAmountJButton;
     private javax.swing.JMenu visualizeJMenu;
     // End of variables declaration//GEN-END:variables
 }

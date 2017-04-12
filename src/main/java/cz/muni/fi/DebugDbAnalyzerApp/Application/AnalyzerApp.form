@@ -113,6 +113,60 @@
         </Property>
       </Properties>
     </Component>
+    <Container class="javax.swing.JDialog" name="specifyAmountJDialog">
+      <Properties>
+        <Property name="title" type="java.lang.String" value="Amount of logs groups around error group"/>
+      </Properties>
+
+      <Layout>
+        <DimensionLayout dim="0">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" alignment="0" attributes="0">
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="justInfoJLabel3" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="amountJTextField" min="-2" pref="90" max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="submitAmountJButton" min="-2" pref="90" max="-2" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+        <DimensionLayout dim="1">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" attributes="0">
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="justInfoJLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="amountJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="submitAmountJButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="32767" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+      </Layout>
+      <SubComponents>
+        <Component class="javax.swing.JLabel" name="justInfoJLabel3">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Tahoma" size="14" style="1"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Specify prefered amount of logs groups around errors/critical groups:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JTextField" name="amountJTextField">
+        </Component>
+        <Component class="javax.swing.JButton" name="submitAmountJButton">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Submit"/>
+          </Properties>
+          <Events>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="submitAmountJButtonMouseClicked"/>
+          </Events>
+        </Component>
+      </SubComponents>
+    </Container>
     <Menu class="javax.swing.JMenuBar" name="jMenuBar">
       <SubComponents>
         <Menu class="javax.swing.JMenu" name="fileJMenu">
@@ -239,7 +293,11 @@
                           <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="specificProcessNameJCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="specifyNumberOfGroupsJCheckBox" min="-2" max="-2" attributes="0"/>
+                                  <Group type="102" attributes="0">
+                                      <Component id="specifyNumberOfGroupsJCheckBox" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="numberOfGroupsJTextField" min="-2" max="-2" attributes="0"/>
+                                  </Group>
                                   <Component id="choosenDatabaseFileJLabel" min="-2" pref="450" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace min="-2" pref="37" max="-2" attributes="0"/>
@@ -269,12 +327,15 @@
                           <Group type="102" attributes="0">
                               <Component id="specificProcessNameJCheckBox" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="specifyNumberOfGroupsJCheckBox" min="-2" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="specifyNumberOfGroupsJCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="numberOfGroupsJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
                           </Group>
                           <Component id="analyzeJButton" min="-2" pref="35" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="loggerOutputJScrollPane" pref="264" max="32767" attributes="0"/>
+                      <Component id="loggerOutputJScrollPane" pref="262" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -326,6 +387,9 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="specify the number of groups around errors "/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="specifyNumberOfGroupsJCheckBoxActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JButton" name="analyzeJButton">
               <Properties>
@@ -351,6 +415,14 @@
                 </Component>
               </SubComponents>
             </Container>
+            <Component class="javax.swing.JTextField" name="numberOfGroupsJTextField">
+              <Properties>
+                <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="ff" green="cc" red="cc" type="rgb"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="number"/>
+              </Properties>
+            </Component>
           </SubComponents>
         </Container>
       </SubComponents>
