@@ -2,8 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>cz.muni.fi.pv168</groupId>
-    <artifactId>Kubus_bakalarska_praca</artifactId>
+    <artifactId>DebugDbAnalyzer</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <developers>
+        <developer>
+            <name>Miroslav Kubus</name>
+            <email>kubus.miro@gmail.com</email>
+            <organization>FI MUNI Brno</organization>
+        </developer>
+    </developers>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -23,5 +30,5 @@
             <type>jar</type>
         </dependency>
     </dependencies>
-    <name>Kubus_bakalarska_praca</name>
+    <name>DebugDbAnalyzer</name>
 </project>

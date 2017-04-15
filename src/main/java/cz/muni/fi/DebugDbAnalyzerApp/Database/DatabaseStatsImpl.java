@@ -15,7 +15,10 @@ public class DatabaseStatsImpl implements DatabaseStats {
     
     private final Map<String, ErrorAndCriticalStats> processErrorsCount;
     private final Map<String, ErrorAndCriticalStats> errorsOfFunctionCount;
-    
+
+    /**
+     * Constructor for DatabaseStatsImpl.
+     */
     public DatabaseStatsImpl() {
         processErrorsCount = new HashMap<>();
         errorsOfFunctionCount = new HashMap<>();
@@ -41,26 +44,6 @@ public class DatabaseStatsImpl implements DatabaseStats {
         addToMap(criticalFunction, 1, 0, errorsOfFunctionCount);
     }
     
-    /**
-     * Method which add new entity to map. If key is in map than value is updated.
-     * @param key represents key used in map
-     * @param count represents value used in map
-     * @param map  represents map to which method adds data
-     */
-    private void addToMap(String key, int error, int critical, Map<String, ErrorAndCriticalStats> map) {
-        ErrorAndCriticalStats stats;
-        
-        if(map.containsKey(key)) {
-            stats = map.get(key);
-            stats.setCritical(stats.getCritical() + critical);
-            stats.setError(stats.getError() + error);
-        } else {
-            stats = new ErrorAndCriticalStats(error, critical);
-        } 
-        
-        map.put(key, stats);
-    }
-    
     @Override
     public Map<String, ErrorAndCriticalStats> getProcessErrorsCriticalsStats() {
         return unmodifiableMap(processErrorsCount);
@@ -75,5 +58,25 @@ public class DatabaseStatsImpl implements DatabaseStats {
     public String toString() {
         return "DatabaseStatsImpl{" + "processErrorsCount=" + processErrorsCount 
                 + ", errorsOfFunctionCount=" + errorsOfFunctionCount + '}';
+    }
+    
+    /**
+     * Method which add new entity to map. If key is in map than value is updated.
+     * @param key represents key used in map.
+     * @param count represents value used in map.
+     * @param map represents map to which method adds data.
+     */
+    private void addToMap(String key, int error, int critical, Map<String, ErrorAndCriticalStats> map) {
+        ErrorAndCriticalStats stats;
+        
+        if(map.containsKey(key)) {
+            stats = map.get(key);
+            stats.setCritical(stats.getCritical() + critical);
+            stats.setError(stats.getError() + error);
+        } else {
+            stats = new ErrorAndCriticalStats(error, critical);
+        } 
+        
+        map.put(key, stats);
     }
 }

@@ -1,4 +1,4 @@
-package cz.muni.fi.DebugDbAnalyzerApp.Utils;
+package cz.muni.fi.DebugDbAnalyzerApp.ApplicationUtils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

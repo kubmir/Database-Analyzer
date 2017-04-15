@@ -156,6 +156,9 @@
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="amountJTextField">
+          <Events>
+            <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="amountJTextFieldKeyPressed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="submitAmountJButton">
           <Properties>
@@ -293,11 +296,7 @@
                           <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="specificProcessNameJCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Group type="102" attributes="0">
-                                      <Component id="specifyNumberOfGroupsJCheckBox" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="numberOfGroupsJTextField" min="-2" max="-2" attributes="0"/>
-                                  </Group>
+                                  <Component id="specifyNumberOfGroupsJCheckBox" min="-2" max="-2" attributes="0"/>
                                   <Component id="choosenDatabaseFileJLabel" min="-2" pref="450" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace min="-2" pref="37" max="-2" attributes="0"/>
@@ -327,15 +326,12 @@
                           <Group type="102" attributes="0">
                               <Component id="specificProcessNameJCheckBox" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="specifyNumberOfGroupsJCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="numberOfGroupsJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
+                              <Component id="specifyNumberOfGroupsJCheckBox" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Component id="analyzeJButton" min="-2" pref="35" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="loggerOutputJScrollPane" pref="262" max="32767" attributes="0"/>
+                      <Component id="loggerOutputJScrollPane" pref="264" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -385,7 +381,7 @@
             </Component>
             <Component class="javax.swing.JCheckBox" name="specifyNumberOfGroupsJCheckBox">
               <Properties>
-                <Property name="text" type="java.lang.String" value="specify the number of groups around errors "/>
+                <Property name="text" type="java.lang.String" value="specify count of groups around errors "/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="specifyNumberOfGroupsJCheckBoxActionPerformed"/>
@@ -415,14 +411,6 @@
                 </Component>
               </SubComponents>
             </Container>
-            <Component class="javax.swing.JTextField" name="numberOfGroupsJTextField">
-              <Properties>
-                <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="ff" green="cc" red="cc" type="rgb"/>
-                </Property>
-                <Property name="text" type="java.lang.String" value="number"/>
-              </Properties>
-            </Component>
           </SubComponents>
         </Container>
       </SubComponents>

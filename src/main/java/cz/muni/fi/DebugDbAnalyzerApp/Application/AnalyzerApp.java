@@ -2,10 +2,11 @@ package cz.muni.fi.DebugDbAnalyzerApp.Application;
 
 import cz.muni.fi.DebugDbAnalyzerApp.Database.DatabaseAccessManagerImpl;
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.ServiceFailureException;
-import cz.muni.fi.DebugDbAnalyzerApp.Utils.TextAreaLoggerHandler;
-import cz.muni.fi.DebugDbAnalyzerApp.XmlOutput.Visualizer;
-import cz.muni.fi.DebugDbAnalyzerApp.XmlOutput.XSLTProcessor;
+import cz.muni.fi.DebugDbAnalyzerApp.ApplicationUtils.TextAreaLoggerHandler;
+import cz.muni.fi.DebugDbAnalyzerApp.XmlOutput.VisualizerImpl;
+import cz.muni.fi.DebugDbAnalyzerApp.XmlOutput.XSLTProcessorImpl;
 import java.awt.BorderLayout;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +31,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
     private OpenXmlFileSwingWorker openXmlSwingWorker = null;
     private String databaseFilePath = null;
     private DatabaseAccessManagerImpl databaseManager = null;
-    private Visualizer visualizer = null;
+    private VisualizerImpl visualizer = null;
     private TextAreaLoggerHandler textAreaHandler = null;
     private int logsAroundErrors;
     
@@ -39,8 +40,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
      */
     public AnalyzerApp() {
         initComponents();
-        numberOfGroupsJTextField.setVisible(false);
-        visualizer = new Visualizer();
+        visualizer = new VisualizerImpl();
         textAreaHandler = new TextAreaLoggerHandler();
         textAreaHandler.initTextAreaHandler(loggerJTextArea);
         logsAroundErrors = Integer.MIN_VALUE;
@@ -70,10 +70,20 @@ public class AnalyzerApp extends javax.swing.JFrame {
 
         private final String selectedProcess;
         
-        public SpecificProcessSwingWorker(String selectedProcess) throws ServiceFailureException {
+        /**
+         * Constructor for SpecificProcessSwingWorker.
+         * @param selectedProcess represents name of process to be analyzed
+         */
+        public SpecificProcessSwingWorker(String selectedProcess) {
             this.selectedProcess = selectedProcess; 
         }
         
+        /**
+         * Constructor for SpecificProcessSwingWorker. It creates new databaseManager
+         * because number of groups around error need to be changed.
+         * @param selectedProcess represents name of process to be analyzed
+         * @throws ServiceFailureException in case of error while creating databaseManager. 
+         */
         public SpecificProcessSwingWorker(String selectedProcess, int aroundError) throws ServiceFailureException {
             this.selectedProcess = selectedProcess; 
             databaseManager = new DatabaseAccessManagerImpl(databaseFilePath, textAreaHandler, aroundError);
@@ -108,6 +118,11 @@ public class AnalyzerApp extends javax.swing.JFrame {
 
         private final boolean specificProcess;
         
+        /**
+         * Constructor for DatabaseWorkSwingWorker.
+         * @param specificProcess indicates if analyze of specific process (true)
+         * is selected or if whole database will be analyzed (false).
+         */
         public DatabaseWorkSwingWorker(boolean specificProcess) {
             this.specificProcess = specificProcess;
         }
@@ -166,15 +181,19 @@ public class AnalyzerApp extends javax.swing.JFrame {
      * Class which opens last xml output of application.
      */
     private class OpenXmlFileSwingWorker extends SwingWorker<Void, Void> {
-        private final XSLTProcessor pro;
+        private final XSLTProcessorImpl pro;
         
+        /**
+         * Constructor for OpenXmlFileSwingWorker. It creates an instance of
+ XSLTProcessorImpl.
+         */
         public OpenXmlFileSwingWorker() {
-            pro = new XSLTProcessor(textAreaHandler);
+            pro = new XSLTProcessorImpl(textAreaHandler);
         }
         
         @Override
         protected Void doInBackground() throws Exception {
-            pro.openFile(Visualizer.getPATH_TO_XML());
+            pro.openFile(VisualizerImpl.getPATH_TO_XML());
             return null;
         }
         
@@ -188,7 +207,6 @@ public class AnalyzerApp extends javax.swing.JFrame {
                 printException(ex);
             }
         }
-        
     }
     
     /**
@@ -196,13 +214,17 @@ public class AnalyzerApp extends javax.swing.JFrame {
      */
     private class VisualizeResultsSwingWorker extends SwingWorker<Void, Void> {
         
-        private final XSLTProcessor pro;
+        private final XSLTProcessorImpl pro;
         private final String htmlPath;
         
+        /**
+         * Constructor for VisualizeResultsSwingWorker. It creates an instance
+         * of XSLTProcessorImpl and sets path to html file of last output.
+         */
         public VisualizeResultsSwingWorker() {
-            pro = new XSLTProcessor(textAreaHandler);
-            htmlPath = "src" + File.separator + "main" + File.separator 
-                + "resources" + File.separator + "htmlOutput.html";
+            htmlPath = "src" + File.separator + "main" 
+                    + File.separator  + "resources" + File.separator + "htmlOutput.html";
+            pro = new XSLTProcessorImpl(textAreaHandler);
         }
         
         @Override
@@ -253,7 +275,6 @@ public class AnalyzerApp extends javax.swing.JFrame {
         analyzeJButton = new javax.swing.JButton();
         loggerOutputJScrollPane = new javax.swing.JScrollPane();
         loggerJTextArea = new javax.swing.JTextArea();
-        numberOfGroupsJTextField = new javax.swing.JTextField();
         jMenuBar = new javax.swing.JMenuBar();
         fileJMenu = new javax.swing.JMenu();
         exitJMenuItem = new javax.swing.JMenuItem();
@@ -327,6 +348,12 @@ public class AnalyzerApp extends javax.swing.JFrame {
         justInfoJLabel3.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         justInfoJLabel3.setText("Specify prefered amount of logs groups around errors/critical groups:");
 
+        amountJTextField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                amountJTextFieldKeyPressed(evt);
+            }
+        });
+
         submitAmountJButton.setText("Submit");
         submitAmountJButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -383,7 +410,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
 
         specificProcessNameJCheckBox.setText("analyze specific process name");
 
-        specifyNumberOfGroupsJCheckBox.setText("specify the number of groups around errors ");
+        specifyNumberOfGroupsJCheckBox.setText("specify count of groups around errors ");
         specifyNumberOfGroupsJCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 specifyNumberOfGroupsJCheckBoxActionPerformed(evt);
@@ -402,9 +429,6 @@ public class AnalyzerApp extends javax.swing.JFrame {
         loggerJTextArea.setRows(5);
         loggerOutputJScrollPane.setViewportView(loggerJTextArea);
 
-        numberOfGroupsJTextField.setForeground(new java.awt.Color(204, 204, 255));
-        numberOfGroupsJTextField.setText("number");
-
         javax.swing.GroupLayout analyzerJPanelLayout = new javax.swing.GroupLayout(analyzerJPanel);
         analyzerJPanel.setLayout(analyzerJPanelLayout);
         analyzerJPanelLayout.setHorizontalGroup(
@@ -416,10 +440,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
                     .addGroup(analyzerJPanelLayout.createSequentialGroup()
                         .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(specificProcessNameJCheckBox)
-                            .addGroup(analyzerJPanelLayout.createSequentialGroup()
-                                .addComponent(specifyNumberOfGroupsJCheckBox)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(numberOfGroupsJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(specifyNumberOfGroupsJCheckBox)
                             .addComponent(choosenDatabaseFileJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 450, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(37, 37, 37)
                         .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -442,12 +463,10 @@ public class AnalyzerApp extends javax.swing.JFrame {
                     .addGroup(analyzerJPanelLayout.createSequentialGroup()
                         .addComponent(specificProcessNameJCheckBox)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(specifyNumberOfGroupsJCheckBox)
-                            .addComponent(numberOfGroupsJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(specifyNumberOfGroupsJCheckBox))
                     .addComponent(analyzeJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(loggerOutputJScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 262, Short.MAX_VALUE))
+                .addComponent(loggerOutputJScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 264, Short.MAX_VALUE))
         );
 
         applicationJTabbedPane.addTab("Analyzer", analyzerJPanel);
@@ -513,6 +532,10 @@ public class AnalyzerApp extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Method which creates JFrame with manual of application.
+     * @param evt event which caused execution of this method
+     */
     private void manualJMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_manualJMenuItemActionPerformed
         JFrame manualFrame = new JFrame();
         manualFrame.setTitle("How to use database analyzer");
@@ -524,14 +547,23 @@ public class AnalyzerApp extends javax.swing.JFrame {
                 + "in chosen database for more effective data loading. <br> <br>"
                 + "Application loads data from database, calculates statistics <br> "
                 + "and performs aggregation according to value of info attribute. <br> <br>"
-                + "Output is visualized in <b> default browser for html files. </b> <br> <br>"
+                + "HTML output is visualized in <b> default browser for html files. </b> <br>"
+                + "XML output is visualized in <b> default browser for xml files. </b> <br> <br>"
                 + "<b>To run application select path to debug database <br> "
-                + "and click analyze. It is possible to turn on filtering.<b>";
+                + "and click analyze. It is possible to turn on filtering <br>"
+                + "selecting analyze specific process name.</b> <br> <br> "
+                + "It is also possible to specify count of log groups <br>"
+                + "around error / critical group selecting specify <br> "
+                + "count of groups around errors.";
         
         setUpJLabel(manual, 18.0f, text);
-        addComponentToFrame(manualFrame, manual, 600, 400);
+        addComponentToFrame(manualFrame, manual, 600, 525);
     }//GEN-LAST:event_manualJMenuItemActionPerformed
 
+    /**
+     * Method which creates JFrame with credits of application.
+     * @param evt event which caused execution of this method
+     */
     private void creditsJMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_creditsJMenuItemActionPerformed
         JFrame creditFrame = new JFrame();
         creditFrame.setTitle("About database analyzer");
@@ -546,6 +578,10 @@ public class AnalyzerApp extends javax.swing.JFrame {
         addComponentToFrame(creditFrame, info, 500, 300);
     }//GEN-LAST:event_creditsJMenuItemActionPerformed
 
+    /**
+     * Method which call execution of visualizeSwingWorker which opens last html output.
+     * @param evt event which caused execution of this method
+     */
     private void lastHtmlOutputJMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lastHtmlOutputJMenuItemActionPerformed
         if (visualizeSwingWorker != null) {
             printOperationInProgress();
@@ -557,20 +593,28 @@ public class AnalyzerApp extends javax.swing.JFrame {
         visualizeSwingWorker.execute();
     }//GEN-LAST:event_lastHtmlOutputJMenuItemActionPerformed
 
+    /**
+     * Method which closes the application.
+     * @param evt event which caused execution of this method
+     */
     private void exitJMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitJMenuItemActionPerformed
         System.exit(0);
     }//GEN-LAST:event_exitJMenuItemActionPerformed
 
+    /**
+     * Method which executes analyze of specific process using SpecificProcessSwingWorker.
+     * @param evt event which caused execution of this method
+     */
     private void specificProcessJButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_specificProcessJButtonMouseClicked
         if (specificProcessSwingWorker != null) {
             printOperationInProgress();
             return;
         }
-        
+       
         String selectedProcess = (String) processNameJComboBox.getSelectedItem();
         selectProcessJDialog.dispose();
         boolean allGroups = outputAllJCheckBox.isSelected();
-        
+
         try {
             if(allGroups) {
                 specificProcessSwingWorker = new SpecificProcessSwingWorker(selectedProcess, -1);
@@ -586,6 +630,10 @@ public class AnalyzerApp extends javax.swing.JFrame {
         outputAllJCheckBox.setSelected(false);
     }//GEN-LAST:event_specificProcessJButtonMouseClicked
 
+    /**
+     * Method which executes analyze of database using DatabaseSwingWorker.
+     * @param evt event which caused execution of this method
+     */
     private void analyzeJButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_analyzeJButtonMouseClicked
         if (databaseSwingWorker != null) {
             printOperationInProgress();
@@ -606,6 +654,10 @@ public class AnalyzerApp extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_analyzeJButtonMouseClicked
 
+    /**
+     * Method which opens JFileChooser for choosing database file to be analyzed.
+     * @param evt event which caused execution of this method
+     */
     private void chooseFileJButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_chooseFileJButtonMouseClicked
         databaseJFileChooser.setCurrentDirectory(new File(System.getProperty("user.home")
             + File.separator + "Desktop"));
@@ -618,6 +670,10 @@ public class AnalyzerApp extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_chooseFileJButtonMouseClicked
 
+    /**
+     * Method which call execution of OpenXmlSwingWorker which opens last xml output.
+     * @param evt event which caused execution of this method
+     */
     private void lastXmlOutputJMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lastXmlOutputJMenuItemActionPerformed
         if(openXmlSwingWorker != null){
             printOperationInProgress();
@@ -629,6 +685,10 @@ public class AnalyzerApp extends javax.swing.JFrame {
         openXmlSwingWorker.execute();
     }//GEN-LAST:event_lastXmlOutputJMenuItemActionPerformed
 
+    /**
+     * Method which opens/closes specifyAmountJDialog after click on specifyNumberOfGroupsJCheckBox.
+     * @param evt event which caused execution of this method
+     */
     private void specifyNumberOfGroupsJCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_specifyNumberOfGroupsJCheckBoxActionPerformed
         if(this.specifyNumberOfGroupsJCheckBox.isSelected()) {
             amountJTextField.setText("");
@@ -641,7 +701,29 @@ public class AnalyzerApp extends javax.swing.JFrame {
         
     }//GEN-LAST:event_specifyNumberOfGroupsJCheckBoxActionPerformed
 
+    /**
+     * Method which stores selected amount of groups around errors 
+     * on mouse click to submit button.
+     * @param evt event which caused execution of this method
+     */
     private void submitAmountJButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_submitAmountJButtonMouseClicked
+        submitAmount();
+    }//GEN-LAST:event_submitAmountJButtonMouseClicked
+    
+    /**
+     * Method which stores selected amount of groups around errors on Enter click.
+     * @param evt event which caused execution of this method
+     */
+    private void amountJTextFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_amountJTextFieldKeyPressed
+        if(evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            submitAmount();
+        }
+    }//GEN-LAST:event_amountJTextFieldKeyPressed
+
+    /**
+     * Method which finds, parses and stores amount of logs around errors.
+     */
+    private void submitAmount() {
         String text = amountJTextField.getText();
         try {
             logsAroundErrors = Integer.parseInt(text);
@@ -650,8 +732,8 @@ public class AnalyzerApp extends javax.swing.JFrame {
             printException(new ServiceFailureException("Error while parsing"
                     + " amount of logs around errors. Type integer number!", ex));
         }
-    }//GEN-LAST:event_submitAmountJButtonMouseClicked
-
+    }
+    
     /**
      * Method which prints information that operation is already in progress.
      */
@@ -703,11 +785,11 @@ public class AnalyzerApp extends javax.swing.JFrame {
     }
     
     /**
+     * Main method which run the application.
      * @param args the command line arguments
      */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
@@ -718,16 +800,9 @@ public class AnalyzerApp extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(AnalyzerApp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(AnalyzerApp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(AnalyzerApp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(AnalyzerApp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
@@ -756,7 +831,6 @@ public class AnalyzerApp extends javax.swing.JFrame {
     private javax.swing.JTextArea loggerJTextArea;
     private javax.swing.JScrollPane loggerOutputJScrollPane;
     private javax.swing.JMenuItem manualJMenuItem;
-    private javax.swing.JTextField numberOfGroupsJTextField;
     private javax.swing.JCheckBox outputAllJCheckBox;
     private javax.swing.JComboBox<String> processNameJComboBox;
     private javax.swing.JDialog selectProcessJDialog;

@@ -1,5 +1,6 @@
 package cz.muni.fi.DebugDbAnalyzerApp.Database;
 
+import cz.muni.fi.DebugDbAnalyzerApp.ApplicationUtils.TextAreaLoggerHandler;
 import cz.muni.fi.DebugDbAnalyzerApp.DataStorage.DatabaseRow;
 import cz.muni.fi.DebugDbAnalyzerApp.DataStorage.ProcessStats;
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.*;
@@ -56,34 +57,7 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
         this.initDatabaseAccessManagerImpl(pathToDB, logHandler);
         analyzer = new DataAnalyzerImpl(logsAround);
     }
-    
-    /**
-     * Method which executes initialization of class.
-     * @param pathToDB represents path to chosen database file
-     * @param logHandler represents handler for logger to be visualized in frontend
-     * @throws ServiceFailureException 
-     */
-    private void initDatabaseAccessManagerImpl(String pathToDB, TextAreaLoggerHandler logHandler) throws ServiceFailureException {
-        if(LOGGER.getHandlers().length == 0) {
-            LOGGER.addHandler(logHandler);
-        }
-        
-        fileWorker = new FileWorkerImpl();
-        myWriter = new XmlWriterImpl(fileWorker.getDatabaseFolder(pathToDB), logHandler);
-        databaseURL = fileWorker.modifySlashes(pathToDB);
-        this.createDataSource(); 
-    }
-    
-    /**
-     * Method which create basic data source for access to database.
-     */
-    private void createDataSource() {
-        this.ds = new BasicDataSource();
-        ds.setDriverClassName("org.sqlite.JDBC");
-        ds.setUrl("jdbc:sqlite:/" + databaseURL);
-        LOGGER.log(Level.INFO, "Database connection created!");
-    }
-        
+     
     @Override
     public void createIndexOnProcessName() throws ServiceFailureException {
         LOGGER.log(Level.INFO, "Creating database index on processName ...");
@@ -138,36 +112,7 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
         return processNames;
     }
     
-    /**
-     * Method whiche access tables in database
-     * @throws ServiceFailureException in case of error while working with database
-     */    
-    public void testAccessDB() throws ServiceFailureException {
-        try {
-            this.createDataSource();
-            
-            try {
-                createIndexOnProcessName();
-            } catch (ServiceFailureException ex) {
-                LOGGER.log(Level.SEVERE, "Error while creating index in DB!", ex);
-            }
-            
-            myWriter.writeStartOfDocument();
-            myWriter.writeStartOfElement("Logs");
-            for(String name : this.getAllProcessNamesFromDatabase()) {
-               accessDebugLogTableByName(name);
-            }
-            myWriter.writeEndOfElement();
-            myWriter.writeDatabaseStats(analyzer.getDatabaseStatistics().getErrorsCriticalsOfFunctionStats(), "FunctionStats");
-            myWriter.writeDatabaseStats(analyzer.getDatabaseStatistics().getProcessErrorsCriticalsStats(), "ProcessStats");
-            myWriter.writeEndOfDocument();
-            dropProcessNameIndex();
-        } catch(SQLException ex) {
-            throw new ServiceFailureException("Internal error: error while closing "
-                    + "ResultSet, statement or connection after accessing the database", ex);
-        }
-    }
-    
+    @Override
     public void accessDebugLogTable(List<String> processNames) throws ServiceFailureException {
         try {
             writeStartOfFile();
@@ -183,20 +128,8 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
         } 
     }
     
-    private void writeStartOfFile() throws ServiceFailureException {
-        myWriter.writeStartOfDocument();
-        myWriter.writeStartOfElement("Logs");
-    }
-    
-    private void writeStatsAndEndOfFile() throws ServiceFailureException {
-        myWriter.writeEndOfElement();
-        myWriter.writeDatabaseStats(analyzer.getDatabaseStatistics().getErrorsCriticalsOfFunctionStats(), "FunctionStats");
-        myWriter.writeDatabaseStats(analyzer.getDatabaseStatistics().getProcessErrorsCriticalsStats(), "ProcessStats");
-        myWriter.writeEndOfDocument();
-    }
-    
     @Override
-    public List<DatabaseRow> accessDebugLogTableByName(String name) throws ServiceFailureException , SQLException {
+    public List<DatabaseRow> accessDebugLogTableByName(String name) throws ServiceFailureException, SQLException {
         Connection con = null;
         PreparedStatement statement = null;
         ResultSet rs = null;
@@ -251,5 +184,55 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
         }
         
         return listOfElements;
+    }
+    
+    /**
+     * Method which executes initialization of class.
+     * @param pathToDB represents path to chosen database file
+     * @param logHandler represents handler for logger to be visualized in frontend
+     * @throws ServiceFailureException 
+     */
+    private void initDatabaseAccessManagerImpl(String pathToDB, TextAreaLoggerHandler logHandler) throws ServiceFailureException {
+        if(LOGGER.getHandlers().length == 0) {
+            LOGGER.addHandler(logHandler);
+        }
+        
+        fileWorker = new FileWorkerImpl();
+        myWriter = new XmlWriterImpl(fileWorker.getDatabaseFolder(pathToDB), logHandler);
+        databaseURL = fileWorker.modifySlashes(pathToDB);
+        this.createDataSource(); 
+    }
+    
+    /**
+     * Method which create basic data source for access to database.
+     */
+    private void createDataSource() {
+        this.ds = new BasicDataSource();
+        ds.setDriverClassName("org.sqlite.JDBC");
+        ds.setUrl("jdbc:sqlite:/" + databaseURL);
+        LOGGER.log(Level.INFO, "Database connection created!");
+    }
+       
+    /**
+     * Method which writes beginning of xml ouput document
+     * with beginning tag of element Logs.
+     * @throws ServiceFailureException in case of error while writing.
+     */
+    private void writeStartOfFile() throws ServiceFailureException {
+        myWriter.writeStartOfDocument();
+        myWriter.writeStartOfElement("Logs");
+    }
+    
+    /**
+     * Method which writes stats to xml output together with end of file.
+     * @throws ServiceFailureException in case of error while writing.
+     */
+    private void writeStatsAndEndOfFile() throws ServiceFailureException {
+        myWriter.writeEndOfElement();
+        myWriter.writeDatabaseStats(analyzer.getDatabaseStatistics().getErrorsCriticalsOfFunctionStats(),
+                "FunctionStats");
+        myWriter.writeDatabaseStats(analyzer.getDatabaseStatistics().getProcessErrorsCriticalsStats(), 
+                "ProcessStats");
+        myWriter.writeEndOfDocument();
     }
 }

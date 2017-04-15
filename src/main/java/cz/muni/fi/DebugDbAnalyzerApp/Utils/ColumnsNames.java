@@ -1,7 +1,7 @@
 package cz.muni.fi.DebugDbAnalyzerApp.Utils;
 
 /**
- * Enum which represents names of columns in debug_log table
+ * Enum which represents names of columns in debug_log table.
  * @author Miroslav Kubus
  */
 public enum ColumnsNames {
@@ -10,10 +10,18 @@ public enum ColumnsNames {
     
     private final int numVal;
     
+    /**
+     * Creates one of columns names.
+     * @param numVal number of column in table.
+     */
     ColumnsNames(int numVal) {
         this.numVal = numVal;
     }
     
+    /**
+     * Getter for value of specific column name.
+     * @return number of column.
+     */
     public int getNumVal() {
         return this.numVal;
     }

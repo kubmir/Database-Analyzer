@@ -4,7 +4,7 @@ import cz.muni.fi.DebugDbAnalyzerApp.DataStorage.ErrorAndCriticalStats;
 import cz.muni.fi.DebugDbAnalyzerApp.DataStorage.GroupOfLogs;
 import cz.muni.fi.DebugDbAnalyzerApp.DataStorage.ProcessStats;
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.ServiceFailureException;
-import cz.muni.fi.DebugDbAnalyzerApp.Utils.TextAreaLoggerHandler;
+import cz.muni.fi.DebugDbAnalyzerApp.ApplicationUtils.TextAreaLoggerHandler;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

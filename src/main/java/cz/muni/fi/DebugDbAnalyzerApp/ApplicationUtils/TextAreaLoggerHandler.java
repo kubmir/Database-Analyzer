@@ -1,6 +1,6 @@
-package cz.muni.fi.DebugDbAnalyzerApp.Utils;
+package cz.muni.fi.DebugDbAnalyzerApp.ApplicationUtils;
 
-
+import cz.muni.fi.DebugDbAnalyzerApp.ApplicationUtils.TextAreaLoggerFormatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.StreamHandler;
@@ -9,6 +9,10 @@ import javax.swing.JTextArea;
 public class TextAreaLoggerHandler extends StreamHandler {
     JTextArea textArea = null;
 
+    /**
+     * Method which serves for initialization of textAreaHandler.
+     * @param textArea 
+     */
     public void initTextAreaHandler(JTextArea textArea) {
         this.textArea = textArea;
         this.setLevel(Level.ALL);
