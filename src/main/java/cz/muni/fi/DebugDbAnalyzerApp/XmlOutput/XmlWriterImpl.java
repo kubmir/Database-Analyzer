@@ -5,14 +5,12 @@ import cz.muni.fi.DebugDbAnalyzerApp.DataStorage.GroupOfLogs;
 import cz.muni.fi.DebugDbAnalyzerApp.DataStorage.ProcessStats;
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.ServiceFailureException;
 import cz.muni.fi.DebugDbAnalyzerApp.ApplicationUtils.TextAreaLoggerHandler;
-import cz.muni.fi.DebugDbAnalyzerApp.Utils.FileWorkerImpl;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -62,7 +60,7 @@ public class XmlWriterImpl implements XmlWriter {
     public void writeStartOfDocument() throws ServiceFailureException {
         try {
             writer.writeStartDocument();
-            this.writeStartOfElement("Database");
+            writeStartOfElement("Database");
         } catch (XMLStreamException ex) {
             LOGGER.log(Level.SEVERE, "Error while writing start of XML document!", ex);
             throw new ServiceFailureException("Internal error: error while "
@@ -73,7 +71,7 @@ public class XmlWriterImpl implements XmlWriter {
     @Override
     public void writeEndOfDocument() throws ServiceFailureException {
         try {
-            this.writeEndOfElement();
+            writeEndOfElement();
             writer.writeEndDocument();
             writer.close();
         } catch (XMLStreamException ex) {

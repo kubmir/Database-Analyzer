@@ -13,8 +13,6 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -47,10 +45,8 @@ public class AnalyzerApp extends javax.swing.JFrame {
      */
     public AnalyzerApp() {
         initComponents();
-        visualizer = new VisualizerImpl();
         textAreaHandler = new TextAreaLoggerHandler();
         textAreaHandler.initTextAreaHandler(loggerJTextArea);
-        logsAroundErrors = Integer.MIN_VALUE;
         fileWorker = new FileWorkerImpl(textAreaHandler);
         try {
             dataFolderPath = fileWorker.createDataDirectory();
@@ -59,6 +55,8 @@ public class AnalyzerApp extends javax.swing.JFrame {
         } catch (ServiceFailureException ex) {
             printException(ex);
         }
+        visualizer = new VisualizerImpl(dataFolderPath);
+        logsAroundErrors = Integer.MIN_VALUE;
     }
     
     /**
@@ -203,7 +201,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
         
         /**
          * Constructor for OpenXmlFileSwingWorker. It creates an instance of
- XSLTProcessorImpl.
+         * XSLTProcessorImpl.
          */
         public OpenXmlFileSwingWorker() {
             pro = new XSLTProcessorImpl(textAreaHandler);
@@ -211,7 +209,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
         
         @Override
         protected Void doInBackground() throws Exception {
-            pro.openFile(VisualizerImpl.getPATH_TO_XML());
+            pro.openFile(visualizer.getXmlPath());
             return null;
         }
         
@@ -240,8 +238,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
          * of XSLTProcessorImpl and sets path to html file of last output.
          */
         public VisualizeResultsSwingWorker() {
-            htmlPath = "src" + File.separator + "main" 
-                    + File.separator  + "resources" + File.separator + "htmlOutput.html";
+            htmlPath = dataFolderPath + File.separator + "htmlOutput.html";
             pro = new XSLTProcessorImpl(textAreaHandler);
         }
         
@@ -679,12 +676,12 @@ public class AnalyzerApp extends javax.swing.JFrame {
     private void chooseFileJButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_chooseFileJButtonMouseClicked
         databaseJFileChooser.setCurrentDirectory(new File(System.getProperty("user.home")
             + File.separator + "Desktop"));
-    int returnValue = databaseJFileChooser.showDialog(this, "Choose");
+        int returnValue = databaseJFileChooser.showDialog(this, "Choose");
 
-    if(returnValue == JFileChooser.APPROVE_OPTION) {
-        File file = databaseJFileChooser.getSelectedFile();
-        databaseFilePath = file.getAbsolutePath();
-        choosenDatabaseFileJLabel.setText(databaseFilePath);
+        if(returnValue == JFileChooser.APPROVE_OPTION) {
+            File file = databaseJFileChooser.getSelectedFile();
+            databaseFilePath = file.getAbsolutePath();
+            choosenDatabaseFileJLabel.setText(databaseFilePath);
         }
     }//GEN-LAST:event_chooseFileJButtonMouseClicked
 

@@ -10,31 +10,33 @@ import java.io.File;
  * @author Miroslav Kubus
  */
 public class VisualizerImpl implements Visualizer {
-    private static final String PROJECT_FOLDER = "src" + File.separator 
-            + "main" + File.separator + "resources";
     
-    private static final String PATH_TO_XSLT = PROJECT_FOLDER
-            + File.separator + "XSLT.xsl";
+    private final String xsltPath;
+    private final String xmlPath;
+    private final String htmlPath;
     
-    private static final String PATH_TO_XML = PROJECT_FOLDER 
-                + File.separator + "xmlOutput.xml";
-    
-    private static final String PATH_TO_HTML = PROJECT_FOLDER 
-                + File.separator + "htmlOutput.html";
-    
+    /**
+     * Constructor for VisualizerImpl. It sets paths to xml, xslt and html files.
+     * @param pathToDataFolder represents path to data folder.
+     */
+    public VisualizerImpl(String pathToDataFolder) {
+        xsltPath = pathToDataFolder + File.separator + "XSLT.xsl";
+        xmlPath = pathToDataFolder + File.separator + "xmlOutput.xml";
+        htmlPath = pathToDataFolder + File.separator + "htmlOutput.html";
+    }
     
     @Override
     public void toWeb(TextAreaLoggerHandler handler) throws ServiceFailureException {        
         XSLTProcessorImpl pro = new XSLTProcessorImpl(handler);
-        pro.transformToHtml(PATH_TO_XSLT, PATH_TO_XML, PATH_TO_HTML);
-        pro.openFile(PATH_TO_HTML);
+        pro.transformToHtml(xsltPath, xmlPath, htmlPath);
+        pro.openFile(htmlPath);
     }
    
     /**
      * Returns path to xml file.
      * @return path to xml file where data are stored.
      */
-    public static String getPATH_TO_XML() {
-        return PATH_TO_XML;
+    public String getXmlPath() {
+        return xmlPath;
     }
 }

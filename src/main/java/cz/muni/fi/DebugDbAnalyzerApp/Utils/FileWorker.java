@@ -1,7 +1,5 @@
 package cz.muni.fi.DebugDbAnalyzerApp.Utils;
 
-import cz.muni.fi.DebugDbAnalyzerApp.ApplicationUtils.TextAreaLoggerHandler;
-
 /**
  * Interface for working with path to database and size of database.
  * @author Miroslav Kubus
@@ -30,7 +28,17 @@ public interface FileWorker {
      */
     public String getDatabaseFolder(String pathToDB);
     
+    /**
+     * Method which export resource from JAR file to data folder of application.
+     * @param resourceName name of resource to be exported.
+     * @throws ServiceFailureException in case of any error while exporting resource.
+     */
     public void ExportResource(String resourceName) throws ServiceFailureException; 
     
+    /**
+     * Method which creates data directory of application.
+     * @return path to data directory of application.
+     * @throws ServiceFailureException in case of any error while creating folder.
+     */
     public String createDataDirectory() throws ServiceFailureException;
 }

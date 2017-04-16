@@ -1,6 +1,5 @@
 package cz.muni.fi.DebugDbAnalyzerApp.ApplicationUtils;
 
-import cz.muni.fi.DebugDbAnalyzerApp.ApplicationUtils.TextAreaLoggerFormatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.StreamHandler;

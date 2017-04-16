@@ -1,7 +1,6 @@
 package cz.muni.fi.DebugDbAnalyzerApp.Utils;
 
 import cz.muni.fi.DebugDbAnalyzerApp.ApplicationUtils.TextAreaLoggerHandler;
-import cz.muni.fi.DebugDbAnalyzerApp.XmlOutput.XSLTProcessorImpl;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -22,8 +21,14 @@ public class FileWorkerImpl implements FileWorker {
     private static final Logger LOGGER = Logger.getLogger(FileWorkerImpl.class.getName());
     private String dataFolderPath;
     
+    /**
+     * Constructor for FileWorkerImpl. It adds handler to logger of class.
+     * @param textAreaHandler handler for logger.
+     */
     public FileWorkerImpl(TextAreaLoggerHandler textAreaHandler) {
-        LOGGER.addHandler(textAreaHandler);
+        if(LOGGER.getHandlers().length == 0) {
+            LOGGER.addHandler(textAreaHandler);
+        }
         dataFolderPath = null;
     }
     
@@ -65,13 +70,11 @@ public class FileWorkerImpl implements FileWorker {
         try(InputStream stream = FileWorkerImpl.class.getResourceAsStream("/" + resourceName);
             OutputStream resStreamOut = new FileOutputStream(dataFolderPath + File.separator + resourceName)){
 
-            if(stream != null)
-                 LOGGER.log(Level.INFO, "Input stream: {0}", stream.toString());
-               
-            LOGGER.log(Level.INFO, "Output stream: {0}", dataFolderPath + File.separator + resourceName);
-               
             if(stream == null) {
-                throw new ServiceFailureException("Cannot get resource \"" + resourceName + "\" from Jar file.");
+                LOGGER.log(Level.SEVERE, "Error while getting resource {0} "
+                        + "from JAR file!", resourceName);
+                throw new ServiceFailureException("Error while getting resource"
+                        + " " + resourceName + " from JAR file!");
             }
 
             int readBytes;
@@ -79,7 +82,8 @@ public class FileWorkerImpl implements FileWorker {
             while ((readBytes = stream.read(buffer)) > 0) {
                 resStreamOut.write(buffer, 0, readBytes);
             }
-        } catch (ServiceFailureException | IOException ex) {
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, "Error while exporting resources!", ex);
             throw new ServiceFailureException("Error while exporting resources!", ex);
         }
     }
@@ -98,7 +102,10 @@ public class FileWorkerImpl implements FileWorker {
                 directory.mkdir();
             }
         } catch (URISyntaxException ex) {
-            throw new ServiceFailureException("Error while creating data folder!", ex);
+            LOGGER.log(Level.SEVERE,"Error while creating data folder "
+                    + "of application!", ex);
+            throw new ServiceFailureException("Error while creating data folder "
+                    + "of application!", ex);
         }
         
         dataFolderPath = directory.getAbsolutePath();
