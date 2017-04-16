@@ -1,5 +1,7 @@
 package cz.muni.fi.DebugDbAnalyzerApp.Utils;
 
+import cz.muni.fi.DebugDbAnalyzerApp.ApplicationUtils.TextAreaLoggerHandler;
+
 /**
  * Interface for working with path to database and size of database.
  * @author Miroslav Kubus
@@ -27,4 +29,8 @@ public interface FileWorker {
      * @return absolute path to folder in which database is stored
      */
     public String getDatabaseFolder(String pathToDB);
+    
+    public void ExportResource(String resourceName) throws ServiceFailureException; 
+    
+    public String createDataDirectory() throws ServiceFailureException;
 }

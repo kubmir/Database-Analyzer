@@ -5,12 +5,14 @@ import cz.muni.fi.DebugDbAnalyzerApp.DataStorage.GroupOfLogs;
 import cz.muni.fi.DebugDbAnalyzerApp.DataStorage.ProcessStats;
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.ServiceFailureException;
 import cz.muni.fi.DebugDbAnalyzerApp.ApplicationUtils.TextAreaLoggerHandler;
+import cz.muni.fi.DebugDbAnalyzerApp.Utils.FileWorkerImpl;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -32,15 +34,14 @@ public class XmlWriterImpl implements XmlWriter {
     
     /**
      * Constructor which creates new file xmlOutput.xml in database folder.
-     * @param pathToDbFolder represents path to folder of database.
+     * @param pathToDataFolder represents path to folder of application data.
      * @param textAreaHandler represents handler for visualizing errors in frontend
      * @throws ServiceFailureException in case of error during creating writer
      * and output stream.
      */
-    public XmlWriterImpl(String pathToDbFolder, TextAreaLoggerHandler textAreaHandler) throws ServiceFailureException {
-        try {
-            outputStream = new FileOutputStream(new File("src" + File.separator 
-                + "main" + File.separator  + "resources" 
+    public XmlWriterImpl(String pathToDataFolder, TextAreaLoggerHandler textAreaHandler) throws ServiceFailureException {
+        try {            
+            outputStream = new FileOutputStream(new File(pathToDataFolder
                 + File.separator + "xmlOutput.xml"));
             
             writer = XMLOutputFactory.newInstance().createXMLStreamWriter(

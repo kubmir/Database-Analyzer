@@ -3,6 +3,8 @@ package cz.muni.fi.DebugDbAnalyzerApp.Application;
 import cz.muni.fi.DebugDbAnalyzerApp.Database.DatabaseAccessManagerImpl;
 import cz.muni.fi.DebugDbAnalyzerApp.Utils.ServiceFailureException;
 import cz.muni.fi.DebugDbAnalyzerApp.ApplicationUtils.TextAreaLoggerHandler;
+import cz.muni.fi.DebugDbAnalyzerApp.Utils.FileWorker;
+import cz.muni.fi.DebugDbAnalyzerApp.Utils.FileWorkerImpl;
 import cz.muni.fi.DebugDbAnalyzerApp.XmlOutput.VisualizerImpl;
 import cz.muni.fi.DebugDbAnalyzerApp.XmlOutput.XSLTProcessorImpl;
 import java.awt.BorderLayout;
@@ -11,6 +13,8 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -34,6 +38,9 @@ public class AnalyzerApp extends javax.swing.JFrame {
     private VisualizerImpl visualizer = null;
     private TextAreaLoggerHandler textAreaHandler = null;
     private int logsAroundErrors;
+    private FileWorker fileWorker = null;
+    private String dataFolderPath = null;
+    
     
     /**
      * Creates new form AnalyzerApp
@@ -44,6 +51,14 @@ public class AnalyzerApp extends javax.swing.JFrame {
         textAreaHandler = new TextAreaLoggerHandler();
         textAreaHandler.initTextAreaHandler(loggerJTextArea);
         logsAroundErrors = Integer.MIN_VALUE;
+        fileWorker = new FileWorkerImpl(textAreaHandler);
+        try {
+            dataFolderPath = fileWorker.createDataDirectory();
+            fileWorker.ExportResource("XSLT.xsl");
+            fileWorker.ExportResource("htmlOutput.css");
+        } catch (ServiceFailureException ex) {
+            printException(ex);
+        }
     }
     
     /**
@@ -86,7 +101,8 @@ public class AnalyzerApp extends javax.swing.JFrame {
          */
         public SpecificProcessSwingWorker(String selectedProcess, int aroundError) throws ServiceFailureException {
             this.selectedProcess = selectedProcess; 
-            databaseManager = new DatabaseAccessManagerImpl(databaseFilePath, textAreaHandler, aroundError);
+            databaseManager = new DatabaseAccessManagerImpl(databaseFilePath, 
+                    dataFolderPath, textAreaHandler, aroundError);
         }
         
         @Override
@@ -133,9 +149,11 @@ public class AnalyzerApp extends javax.swing.JFrame {
             
             if(databaseFilePath != null) {
                 if(logsAroundErrors == Integer.MIN_VALUE) {
-                    databaseManager = new DatabaseAccessManagerImpl(databaseFilePath, textAreaHandler);
+                    databaseManager = new DatabaseAccessManagerImpl(databaseFilePath, 
+                            dataFolderPath, textAreaHandler);
                 } else {
-                    databaseManager = new DatabaseAccessManagerImpl(databaseFilePath, textAreaHandler, logsAroundErrors);
+                    databaseManager = new DatabaseAccessManagerImpl(databaseFilePath, 
+                            dataFolderPath, textAreaHandler, logsAroundErrors);
                 }
                 databaseManager.createIndexOnProcessName();
                 processes = databaseManager.getAllProcessNamesFromDatabase();
@@ -746,7 +764,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
      * @param ex represents throwed exception
      */
     private void printException(Throwable ex) {
-        JOptionPane.showMessageDialog(null, ex.getCause().getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, ex.getCause().toString(), "Error", JOptionPane.ERROR_MESSAGE);
     }
     
     /**

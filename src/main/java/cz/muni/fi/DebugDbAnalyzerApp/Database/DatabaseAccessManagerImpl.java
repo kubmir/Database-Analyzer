@@ -36,11 +36,12 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
      * It also creates instance of DataAnalyzerImpl, XmlWriterImpl and FileWorkerImpl.
      * This constructor sets number of logs around errors according to size of database file.
      * @param pathToDB represents path to chosen database file
+     * @param pathToDataFolder represents path to data folder of application.
      * @param logHandler represents handler for logger to be visualized in frontend
      * @throws ServiceFailureException in case of error during initialization of XmlWriterImpl
      */
-    public DatabaseAccessManagerImpl(String pathToDB, TextAreaLoggerHandler logHandler) throws ServiceFailureException {
-        this.initDatabaseAccessManagerImpl(pathToDB, logHandler);
+    public DatabaseAccessManagerImpl(String pathToDB, String pathToDataFolder, TextAreaLoggerHandler logHandler) throws ServiceFailureException {
+        this.initDatabaseAccessManagerImpl(pathToDB, pathToDataFolder, logHandler);
         analyzer = new DataAnalyzerImpl(fileWorker.getNumberOfLogsAroundErrors(pathToDB));
     }
     
@@ -49,12 +50,14 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
      * It also creates instance of DataAnalyzerImpl, XmlWriterImpl and FileWorkerImpl.
      * This constructor sets number of logs around errors according to logsAround param.
      * @param pathToDB represents path to chosen database file
+     * @param pathToDataFolder represents path to data folder of application.
      * @param logHandler represents handler for logger to be visualized in frontend
      * @param logsAround represents number of logs around error group. -1 represents all logs.
      * @throws ServiceFailureException in case of error during initialization of XmlWriterImpl
      */
-    public DatabaseAccessManagerImpl(String pathToDB, TextAreaLoggerHandler logHandler, int logsAround) throws ServiceFailureException {
-        this.initDatabaseAccessManagerImpl(pathToDB, logHandler);
+    public DatabaseAccessManagerImpl(String pathToDB, String pathToDataFolder, 
+            TextAreaLoggerHandler logHandler, int logsAround) throws ServiceFailureException {
+        this.initDatabaseAccessManagerImpl(pathToDB, pathToDataFolder, logHandler);
         analyzer = new DataAnalyzerImpl(logsAround);
     }
      
@@ -189,17 +192,19 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
     /**
      * Method which executes initialization of class.
      * @param pathToDB represents path to chosen database file
+     * @param pathToDataFolder represents path to data folder of application.
      * @param logHandler represents handler for logger to be visualized in frontend
      * @throws ServiceFailureException 
      */
-    private void initDatabaseAccessManagerImpl(String pathToDB, TextAreaLoggerHandler logHandler) throws ServiceFailureException {
+    private void initDatabaseAccessManagerImpl(String pathToDB, String pathToDataFolder, TextAreaLoggerHandler logHandler) throws ServiceFailureException {
         if(LOGGER.getHandlers().length == 0) {
             LOGGER.addHandler(logHandler);
         }
         
-        fileWorker = new FileWorkerImpl();
-        myWriter = new XmlWriterImpl(fileWorker.getDatabaseFolder(pathToDB), logHandler);
+        fileWorker = new FileWorkerImpl(logHandler);
+        myWriter = new XmlWriterImpl(pathToDataFolder, logHandler);
         databaseURL = fileWorker.modifySlashes(pathToDB);
+        LOGGER.log(Level.INFO, "Database path:{0}", databaseURL);
         this.createDataSource(); 
     }
     
