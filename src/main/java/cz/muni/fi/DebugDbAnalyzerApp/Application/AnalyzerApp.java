@@ -761,7 +761,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
      * @param ex represents throwed exception
      */
     private void printException(Throwable ex) {
-        JOptionPane.showMessageDialog(null, ex.getCause().toString(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, ex.getCause().getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
     
     /**
