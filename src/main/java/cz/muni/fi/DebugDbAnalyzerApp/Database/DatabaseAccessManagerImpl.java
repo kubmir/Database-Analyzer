@@ -64,10 +64,13 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
     @Override
     public void createIndexOnProcessName() throws ServiceFailureException {
         LOGGER.log(Level.INFO, "Creating database index on processName ...");
+        
         try(Connection con = ds.getConnection();
             Statement statement = con.createStatement()) {
             statement.setQueryTimeout(60);
-            statement.executeUpdate("CREATE INDEX if not exists IX_debug_log_processName ON debug_log (process_name)");
+            statement.executeUpdate("CREATE INDEX if not exists "
+                    + "IX_debug_log_processName ON debug_log (process_name)");
+            
             LOGGER.log(Level.INFO, "Database index on processName created!");
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, "Error while creating index on process_name "
