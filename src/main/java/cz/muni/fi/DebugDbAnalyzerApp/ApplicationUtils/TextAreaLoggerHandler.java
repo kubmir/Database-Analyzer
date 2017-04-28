@@ -20,9 +20,6 @@ public class TextAreaLoggerHandler extends StreamHandler {
 
     @Override
     public void publish(LogRecord record) {
-        super.publish(record);
-        flush();
-
         if (textArea != null) {
             textArea.append(getFormatter().format(record));
             textArea.setCaretPosition(textArea.getDocument().getLength());
