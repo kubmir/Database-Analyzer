@@ -51,4 +51,11 @@ public interface DatabaseAccessManager {
      */
     public void accessDebugLogTable(List<String> processNames) 
             throws ServiceFailureException;
+    
+    /**
+     * Check database if contains verbose logs.
+     * @return true if database contains verbose logs, false otherwise.
+     * @throws ServiceFailureException in case of error while retieving data.
+     */
+    public boolean containsVerboseLogs() throws ServiceFailureException;
 }

@@ -97,6 +97,30 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
     }
     
     @Override
+    public boolean containsVerboseLogs() throws ServiceFailureException {
+        LOGGER.log(Level.INFO, "Checking database for verbose logs ...");
+        
+        try(Connection con = ds.getConnection();
+            Statement statement = con.createStatement()) {
+            statement.setQueryTimeout(60);
+            ResultSet rs = statement.executeQuery("SELECT * FROM debug_log "
+                    + "WHERE level = 100 LIMIT 1");
+            
+            if(rs.isBeforeFirst()) {
+                LOGGER.log(Level.INFO, "Database contains verbose logs!");
+                return true;
+            } else {
+                LOGGER.log(Level.INFO, "Database does not contain verbose logs!");
+                return false;
+            }
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error while checking verbose logs!", ex);
+            throw new ServiceFailureException("Internal error: error while "
+                    + "checking verbose logs!", ex);
+        }
+    }
+    
+    @Override
     public List<String> getAllProcessNamesFromDatabase() throws ServiceFailureException {
         LOGGER.log(Level.INFO, "Retrieving all unique process names from database ...");
         List<String> processNames = new ArrayList<>();
@@ -126,7 +150,7 @@ public class DatabaseAccessManagerImpl implements DatabaseAccessManager {
             for(String name : processNames) {
                 accessDebugLogTableByName(name);
             }
-            
+
             writeStatsAndEndOfFile();
         } catch(SQLException ex) {
             throw new ServiceFailureException("Internal error: error while closing "

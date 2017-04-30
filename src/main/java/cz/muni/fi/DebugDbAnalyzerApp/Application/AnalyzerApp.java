@@ -153,14 +153,19 @@ public class AnalyzerApp extends javax.swing.JFrame {
                     databaseManager = new DatabaseAccessManagerImpl(databaseFilePath, 
                             dataFolderPath, textAreaHandler, logsAroundErrors);
                 }
-                databaseManager.createIndexOnProcessName();
-                processes = databaseManager.getAllProcessNamesFromDatabase();
+                
+                if(databaseManager.containsVerboseLogs()) {
+                    databaseManager.createIndexOnProcessName();
+                    processes = databaseManager.getAllProcessNamesFromDatabase();
 
-                if(!specificProcess) {
-                    databaseManager.accessDebugLogTable(processes);
-                    databaseManager.dropProcessNameIndex();
-                    visualizer.toWeb(textAreaHandler);
-                } 
+                    if(!specificProcess) {
+                        databaseManager.accessDebugLogTable(processes);
+                        databaseManager.dropProcessNameIndex();
+                        visualizer.toWeb(textAreaHandler);
+                    } 
+                } else {
+                    throw new ServiceFailureException("Database does not contain verbose logs!");
+                }
             }
             
             return processes;
