@@ -137,15 +137,10 @@ public class AnalyzerApp extends javax.swing.JFrame {
          * @param specificProcess indicates if analyze of specific process (true)
          * is selected or if whole database will be analyzed (false).
          */
-        public DatabaseWorkSwingWorker(boolean specificProcess) {
+        public DatabaseWorkSwingWorker(boolean specificProcess) throws ServiceFailureException {
             this.specificProcess = specificProcess;
-        }
-        
-        @Override
-        protected List<String> doInBackground() throws Exception {
-            List<String> processes = null;
             
-            if(databaseFilePath != null) {
+            if(databaseFilePath != null) {             
                 if(logsAroundErrors == Integer.MIN_VALUE) {
                     databaseManager = new DatabaseAccessManagerImpl(databaseFilePath, 
                             dataFolderPath, textAreaHandler);
@@ -153,20 +148,23 @@ public class AnalyzerApp extends javax.swing.JFrame {
                     databaseManager = new DatabaseAccessManagerImpl(databaseFilePath, 
                             dataFolderPath, textAreaHandler, logsAroundErrors);
                 }
-                
-                if(databaseManager.containsVerboseLogs()) {
-                    databaseManager.createIndexOnProcessName();
-                    processes = databaseManager.getAllProcessNamesFromDatabase();
-
-                    if(!specificProcess) {
-                        databaseManager.accessDebugLogTable(processes);
-                        databaseManager.dropProcessNameIndex();
-                        visualizer.toWeb(textAreaHandler);
-                    } 
-                } else {
-                    throw new ServiceFailureException("Database does not contain verbose logs!");
-                }
+            } else {
+                throw new ServiceFailureException("Illegal database file path!");
             }
+        }
+        
+        @Override
+        protected List<String> doInBackground() throws Exception {
+            List<String> processes;
+            
+            databaseManager.createIndexOnProcessName();
+            processes = databaseManager.getAllProcessNamesFromDatabase();
+
+            if(!specificProcess) {
+                databaseManager.accessDebugLogTable(processes);
+                databaseManager.dropProcessNameIndex();
+                visualizer.toWeb(textAreaHandler);
+            } 
             
             return processes;
         }
@@ -181,6 +179,20 @@ public class AnalyzerApp extends javax.swing.JFrame {
                 printException(ex);
             }
         }       
+    }
+    
+    /**
+     * Class which serves for database access for checking if database contains 
+     * verbose logs.
+     */
+    private class CheckVerboseLogsSwingWorker extends SwingWorker<Boolean, Void> {
+
+        @Override
+        protected Boolean doInBackground() throws Exception {
+            boolean verboseLevel = databaseManager.containsVerboseLogs();
+                   
+            return verboseLevel;
+        }
     }
     
     /**
@@ -295,6 +307,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
         analyzeJButton = new javax.swing.JButton();
         loggerOutputJScrollPane = new javax.swing.JScrollPane();
         loggerJTextArea = new javax.swing.JTextArea();
+        verboseLevelJCheckBox = new javax.swing.JCheckBox();
         jMenuBar = new javax.swing.JMenuBar();
         fileJMenu = new javax.swing.JMenu();
         exitJMenuItem = new javax.swing.JMenuItem();
@@ -449,13 +462,17 @@ public class AnalyzerApp extends javax.swing.JFrame {
         loggerJTextArea.setRows(5);
         loggerOutputJScrollPane.setViewportView(loggerJTextArea);
 
+        verboseLevelJCheckBox.setText("check if verbose level logs are in database");
+
         javax.swing.GroupLayout analyzerJPanelLayout = new javax.swing.GroupLayout(analyzerJPanel);
         analyzerJPanel.setLayout(analyzerJPanelLayout);
         analyzerJPanelLayout.setHorizontalGroup(
             analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(loggerOutputJScrollPane, javax.swing.GroupLayout.Alignment.TRAILING)
             .addGroup(analyzerJPanelLayout.createSequentialGroup()
                 .addGap(23, 23, 23)
                 .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(verboseLevelJCheckBox)
                     .addComponent(justInfoJLabel)
                     .addGroup(analyzerJPanelLayout.createSequentialGroup()
                         .addGroup(analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -467,7 +484,6 @@ public class AnalyzerApp extends javax.swing.JFrame {
                             .addComponent(chooseFileJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(analyzeJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(24, Short.MAX_VALUE))
-            .addComponent(loggerOutputJScrollPane, javax.swing.GroupLayout.Alignment.TRAILING)
         );
         analyzerJPanelLayout.setVerticalGroup(
             analyzerJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -485,8 +501,10 @@ public class AnalyzerApp extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(specifyNumberOfGroupsJCheckBox))
                     .addComponent(analyzeJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addComponent(loggerOutputJScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 264, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(verboseLevelJCheckBox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(loggerOutputJScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 254, Short.MAX_VALUE))
         );
 
         applicationJTabbedPane.addTab("Analyzer", analyzerJPanel);
@@ -662,7 +680,28 @@ public class AnalyzerApp extends javax.swing.JFrame {
 
         boolean specificProcess = specificProcessNameJCheckBox.isSelected();
         analyzeJButton.setEnabled(false);
-        databaseSwingWorker = new DatabaseWorkSwingWorker(specificProcess);
+        
+        try {
+            databaseSwingWorker = new DatabaseWorkSwingWorker(specificProcess);
+        } catch (ServiceFailureException ex) {
+            printException(ex);
+        }
+        
+        if(verboseLevelJCheckBox.isSelected()) {
+            CheckVerboseLogsSwingWorker checkVerboseSW = new CheckVerboseLogsSwingWorker();
+            checkVerboseSW.execute();
+            try {
+                boolean contains = checkVerboseSW.get();
+                if(!contains) {
+                    String message = "No VERBOSE logs in database!";
+                    JOptionPane.showMessageDialog(new JFrame(), message, 
+                            "Information", JOptionPane.INFORMATION_MESSAGE);
+                }
+            } catch (InterruptedException | ExecutionException ex) {
+                printException(ex);
+            }
+        }
+        
         databaseSwingWorker.execute();
 
         try {
@@ -758,7 +797,8 @@ public class AnalyzerApp extends javax.swing.JFrame {
      * Method which prints information that operation is already in progress.
      */
     private void printOperationInProgress() {
-        JOptionPane.showMessageDialog(null, "Operation is already in progress", "Warning", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(null, "Operation is already in progress", 
+                "Warning", JOptionPane.WARNING_MESSAGE);
     }
     
     /**
@@ -766,7 +806,8 @@ public class AnalyzerApp extends javax.swing.JFrame {
      * @param ex represents throwed exception
      */
     private void printException(Throwable ex) {
-        JOptionPane.showMessageDialog(null, ex.getCause().getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, ex.getCause().getMessage(), "Error",
+                JOptionPane.ERROR_MESSAGE);
     }
     
     /**
@@ -774,7 +815,8 @@ public class AnalyzerApp extends javax.swing.JFrame {
      * @param ex represents throwed exception
      */
     private void printException(ServiceFailureException ex) {
-        JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", 
+                JOptionPane.ERROR_MESSAGE);
     }
     
     /**
@@ -860,6 +902,7 @@ public class AnalyzerApp extends javax.swing.JFrame {
     private javax.swing.JDialog specifyAmountJDialog;
     private javax.swing.JCheckBox specifyNumberOfGroupsJCheckBox;
     private javax.swing.JButton submitAmountJButton;
+    private javax.swing.JCheckBox verboseLevelJCheckBox;
     private javax.swing.JMenu visualizeJMenu;
     // End of variables declaration//GEN-END:variables
 }
